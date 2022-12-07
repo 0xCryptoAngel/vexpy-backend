@@ -18,6 +18,10 @@ const PORT = process.env.PORT ?? 80;
 /// Database connect
 dbConfig();
 
+/// connect router
+const router = require("./src/routes")();
+app.use("/api", router);
+
 app.get("/", (req, res) => {
   res.send("Well done!");
 });
@@ -25,6 +29,3 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Tasks server listening at http://localhost:${PORT}`);
 });
-
-const router = require("./routes")();
-app.use("/api", router);

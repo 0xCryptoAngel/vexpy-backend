@@ -9,7 +9,7 @@ async function fetchUsers(req: Request, res: Response) {
 }
 
 module.exports = () => {
-  const userRoute = express.Router();
-  userRoute.get("/fetch", fetchUsers);
-  return userRoute;
+  const nftRoute = express.Router();
+  nftRoute.get("/fetch", fetchUsers);
+  return nftRoute;
 };
