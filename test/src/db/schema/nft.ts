@@ -18,4 +18,4 @@ const Nft: Schema = new Schema({
   },
 });
 // Define schema of collection in mongoDB
-export const nft: Model<INft> = model<INft>("User", Nft);
+export const nft: Model<INft> = model<INft>("Nft", Nft);
