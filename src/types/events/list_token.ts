@@ -9,3 +9,14 @@ export interface ListTokenEventData {
   timestamp: string;
   offer_id: string;
 }
+
+export interface token {
+  propertyVersion: number;
+  creator: string;
+  collectionName: string;
+  name: string;
+  uri: string;
+  description: string;
+  maximum: string;
+  supply: string;
+}
