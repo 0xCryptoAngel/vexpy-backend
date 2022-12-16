@@ -10,6 +10,7 @@ const app = express();
 import { MARKET_ADDRESS } from "./src/config/constants";
 import { aptosClient, walletClient } from "./src/config/constants";
 import { ListTokenEventData } from "./src/types";
+import axios from "axios";
 ///enabled CORS
 app.use(cors());
 
@@ -60,12 +61,19 @@ async function main() {
       if (result.length == 0) {
         const { description, uri, maximum, supply } =
           (await walletClient.getToken(data?.token_id)) as TokenData;
+        let imageUri;
+        if (uri?.slice(-5).includes(".")) {
+          imageUri = uri;
+        } else {
+          const res = await axios.get(uri);
+          imageUri = res.data?.image;
+        }
         let payload = {
           propertyVersion: propertyVersion,
           creator: creator,
           collectionName: collection,
           name: name,
-          uri: uri,
+          uri: imageUri,
           description: description,
           maximum: maximum,
           supply: supply,
