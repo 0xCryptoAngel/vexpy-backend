@@ -62,7 +62,7 @@ async function main() {
         const { description, uri, maximum, supply } =
           (await walletClient.getToken(data?.token_id)) as TokenData;
         let imageUri: string;
-        if (uri?.slice(-5).includes(".")) {
+        if (uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
           imageUri = uri;
         } else {
           if (uri?.length > 0) {
