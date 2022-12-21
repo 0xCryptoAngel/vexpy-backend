@@ -11,6 +11,10 @@ const ListToken: Schema = new Schema({
   description: { type: String },
   maximum: { type: String },
   supply: { type: String },
+  id: { type: String },
+  price: { type: String },
+  seller: { type: String },
+  createAt: { type: Date },
 });
 // Define schema of collection in mongoDB
 export const listToken: Model<token> = model<token>("listToken", ListToken);

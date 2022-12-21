@@ -42,10 +42,13 @@ async function main() {
     `${MARKET_ADDRESS}::marketplace::MarketEvents`,
     "list_token_events"
   );
-
   listEvents?.map(async (item) => {
     let seq: bigint;
     const data = item.data as ListTokenEventData;
+    const offerId = data?.offer_id;
+    const price = data?.price;
+    const seller = data?.seller;
+    const createAt = new Date(parseInt(data.timestamp) / 1000);
     const tokenDataId = data?.token_id?.token_data_id;
     const creator = tokenDataId.creator;
     const propertyVersion = parseInt(data.token_id.property_version);
@@ -81,6 +84,10 @@ async function main() {
           description: description,
           maximum: maximum,
           supply: supply,
+          id: offerId,
+          price: price,
+          seller: seller,
+          createAt: createAt,
         };
         let listed = new listToken(payload);
         listed.save();
