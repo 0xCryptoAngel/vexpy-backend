@@ -9,9 +9,18 @@ async function fetchUsers(req: Request, res: Response) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
+async function updateItem(req: Request, res: Response) {
+  try {
+    let data = await marketController.fetchListToken();
+    return res.status(200).send({ value: "OK" });
+  } catch (err) {
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
 
 module.exports = () => {
   const marketRoute = express.Router();
   marketRoute.get("/fetch", fetchUsers);
+  marketRoute.put("/update", updateItem);
   return marketRoute;
 };
