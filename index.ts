@@ -38,171 +38,79 @@ app.listen(PORT, () => {
 });
 
 async function main() {
-  const listEvents = await aptosClient.getEventsByEventHandle(
-    MARKET_ADDRESS!,
-    `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-    "list_token_events"
-  );
-  console.log("*****************", listEvents);
-  listEvents?.map(async (item) => {
-    const data = item.data as ListTokenEventData;
-    const offerId = data?.offer_id;
-    const price = data?.price;
-    const seller = data?.seller;
-    const createAt = new Date(parseInt(data.timestamp) / 1000);
-    const tokenDataId = data?.token_id?.token_data_id;
-    const creator = tokenDataId.creator;
-    const propertyVersion = parseInt(data.token_id.property_version);
-    const collection = tokenDataId.collection;
-    const name = tokenDataId.name;
-    const result = await listToken.find({
-      propertyVersion: propertyVersion,
-      creator: creator,
-      collection: collection,
-      name: name,
-    });
-    try {
-      if (result.length == 0) {
-        const { description, uri, maximum, supply } =
-          (await walletClient.getToken(data?.token_id)) as TokenData;
-        let imageUri: string;
-        if (uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
-          imageUri = uri;
-        } else {
-          if (uri?.length > 0) {
-            const test = await axios.get(uri, {
-              headers: { "Accept-Encoding": "gzip,deflate,compress" },
-            });
-            imageUri = test.data?.image;
-          }
-        }
-        let payload = {
-          propertyVersion: propertyVersion,
-          creator: creator,
-          collectionName: collection,
-          name: name,
-          uri: imageUri!,
-          description: description,
-          maximum: maximum,
-          supply: supply,
-          id: offerId,
-          price: price,
-          seller: seller,
-          createAt: createAt,
-        };
-        let listed = new listToken(payload);
-        listed.save();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  });
-
-  const buyEvents = await aptosClient.getEventsByEventHandle(
-    MARKET_ADDRESS!,
-    `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-    "buy_token_events"
-  );
-  console.log("buyEvents", buyEvents);
-  const cancelEvents = await aptosClient.getEventsByEventHandle(
-    MARKET_ADDRESS!,
-    `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-    "cancel_sale_events",
-    { start: BigInt(1), limit: 100 }
-  );
-  console.log("cancelEvents", cancelEvents);
-
+  // const listEvents = await aptosClient.getEventsByEventHandle(
+  //   MARKET_ADDRESS!,
+  //   `${MARKET_ADDRESS}::marketplace::MarketEvents`,
+  //   "list_token_events"
+  // );
+  // listEvents.sort((a, b) => b.data.timestamp - a.data.timestamp);
+  // listEvents?.map(async (item) => {
+  //   const data = item.data as ListTokenEventData;
+  //   const offerId = data?.offer_id;
+  //   const price = data?.price;
+  //   const seller = data?.seller;
+  //   const createAt = new Date(parseInt(data.timestamp) / 1000);
+  //   const tokenDataId = data?.token_id?.token_data_id;
+  //   const creator = tokenDataId.creator;
+  //   const propertyVersion = parseInt(data.token_id.property_version);
+  //   const collection = tokenDataId.collection;
+  //   const name = tokenDataId.name;
+  //   const result = await listToken.find({
+  //     propertyVersion: propertyVersion,
+  //     creator: creator,
+  //     collection: collection,
+  //     name: name,
+  //   });
+  //   try {
+  //     if (result.length == 0) {
+  //       const { description, uri, maximum, supply } =
+  //         (await walletClient.getToken(data?.token_id)) as TokenData;
+  //       let imageUri: string;
+  //       if (uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
+  //         imageUri = uri;
+  //       } else {
+  //         if (uri?.length > 0) {
+  //           const test = await axios.get(uri, {
+  //             headers: { "Accept-Encoding": "gzip,deflate,compress" },
+  //           });
+  //           imageUri = test.data?.image;
+  //         }
+  //       }
+  //       let payload = {
+  //         propertyVersion: propertyVersion,
+  //         creator: creator,
+  //         collectionName: collection,
+  //         name: name,
+  //         uri: imageUri!,
+  //         description: description,
+  //         maximum: maximum,
+  //         supply: supply,
+  //         id: offerId,
+  //         price: price,
+  //         seller: seller,
+  //         createAt: createAt,
+  //       };
+  //       let listed = new listToken(payload);
+  //       listed.save();
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // });
+  // const buyEvents = await aptosClient.getEventsByEventHandle(
+  //   MARKET_ADDRESS!,
+  //   `${MARKET_ADDRESS}::marketplace::MarketEvents`,
+  //   "buy_token_events"
+  // );
+  // const cancelEvents = await aptosClient.getEventsByEventHandle(
+  //   MARKET_ADDRESS!,
+  //   `${MARKET_ADDRESS}::marketplace::MarketEvents`,
+  //   "cancel_sale_events",
+  //   { start: BigInt(1), limit: 100 }
+  // );
   // buyEvents?.map((item) => {
   //   // let buyed = new buyToken(item.data);
   //   // buyed.save();
   // });
 }
-// main();
-
-var job = new CronJob(
-  "*/4 * * * * *",
-  async function () {
-    const listEvents = await aptosClient.getEventsByEventHandle(
-      MARKET_ADDRESS!,
-      `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-      "list_token_events"
-    );
-
-    listEvents.sort(function (a, b) {
-      return a?.data?.timestamp - b?.data?.timestamp;
-    });
-    console.log("listEvents", listEvents);
-    listEvents?.map(async (item) => {
-      let seq: bigint;
-      const data = item.data as ListTokenEventData;
-      const offerId = data?.offer_id;
-      const price = data?.price;
-      const seller = data?.seller;
-      const createAt = new Date(parseInt(data.timestamp) / 1000);
-      const tokenDataId = data?.token_id?.token_data_id;
-      const creator = tokenDataId.creator;
-      const propertyVersion = parseInt(data.token_id.property_version);
-      const collection = tokenDataId.collection;
-      const name = tokenDataId.name;
-      const result = await listToken.find({
-        propertyVersion: propertyVersion,
-        creator: creator,
-        collection: collection,
-        name: name,
-      });
-      try {
-        if (result.length == 0) {
-          const { description, uri, maximum, supply } =
-            (await walletClient.getToken(data?.token_id)) as TokenData;
-          let imageUri: string;
-          if (uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
-            imageUri = uri;
-          } else {
-            if (uri?.length > 0) {
-              const test = await axios.get(uri, {
-                headers: { "Accept-Encoding": "gzip,deflate,compress" },
-              });
-              imageUri = test.data?.image;
-            }
-          }
-          let payload = {
-            propertyVersion: propertyVersion,
-            creator: creator,
-            collectionName: collection,
-            name: name,
-            uri: imageUri!,
-            description: description,
-            maximum: maximum,
-            supply: supply,
-            id: offerId,
-            price: price,
-            seller: seller,
-            createAt: createAt,
-          };
-          let listed = new listToken(payload);
-          listed.save();
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
-    const buyEvents = await aptosClient.getEventsByEventHandle(
-      MARKET_ADDRESS!,
-      `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-      "buy_token_events"
-    );
-    console.log("buyEvents", buyEvents);
-    const cancelEvents = await aptosClient.getEventsByEventHandle(
-      MARKET_ADDRESS!,
-      `${MARKET_ADDRESS}::marketplace::MarketEvents`,
-      "cancel_sale_events",
-      { start: BigInt(1), limit: 100 }
-    );
-    console.log("cancelEvents", cancelEvents);
-  },
-  null,
-  true,
-  "America/Los_Angeles"
-);
-job.start();
+main();
