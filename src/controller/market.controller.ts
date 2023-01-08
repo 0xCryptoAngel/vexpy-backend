@@ -1,16 +1,11 @@
 import { listToken } from "../db/schema/listToken";
-import { aptosClient, MARKET_ADDRESS } from "../config/constants";
+import { aptosClient, walletClient, MARKET_ADDRESS } from "../config/constants";
 import { ListTokenEventData } from "../types";
 import { TokenData } from "../types/structs/TokenData";
 import axios from "axios";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { WalletClient } from "@martiandao/aptos-web3-bip44.js";
-
-export const walletClient = new WalletClient(
-  "https://fullnode.devnet.aptoslabs.com",
-  "https://faucet.devnet.aptoslabs.com"
-);
 
 export const fetchListToken = async () => {
   const result = await nftItem.find({
