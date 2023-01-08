@@ -5,7 +5,6 @@ import { TokenData } from "../types/structs/TokenData";
 import axios from "axios";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
-import { WalletClient } from "@martiandao/aptos-web3-bip44.js";
 
 export const fetchListToken = async () => {
   const result = await nftItem.find({
