@@ -1,5 +1,10 @@
 import { listToken } from "../db/schema/listToken";
-import { aptosClient, walletClient, MARKET_ADDRESS } from "../config/constants";
+import {
+  aptosClient,
+  walletClient,
+  tokenClient,
+  MARKET_ADDRESS,
+} from "../config/constants";
 import { ListTokenEventData } from "../types";
 import { TokenData } from "../types/structs/TokenData";
 import axios from "axios";
@@ -115,7 +120,11 @@ export const handleNfts = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const handleMintRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  const token = await walletClient.getToken(tokenIdData);
+  const token = await tokenClient.getTokenData(
+    tokenIdData.token_data_id.creator,
+    tokenIdData.token_data_id.collection,
+    tokenIdData.token_data_id.name
+  );
   if (!token) return;
   let newItem = await nftItem.create({ key: tokenIdData });
   newItem.image_uri = token.uri;
@@ -127,7 +136,6 @@ export const handleMintRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  console.log("tokenIdData", tokenIdData);
   let item = await nftItem
     .findOne({
       "key.property_version": tokenIdData.property_version,
@@ -143,7 +151,6 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     "list_token_events",
     { start: 0, limit: 100 }
   );
-  console.log("listEvents", listEvents);
   listEvents.sort((a, b) => b.data.timestamp - a.data.timestamp);
   const token = listEvents.find(({ data }) => {
     return (
