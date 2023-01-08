@@ -32,24 +32,20 @@ export const updateListToken = async (token: any) => {
     `${MARKET_ADDRESS}::marketplace::MarketEvents`,
     "list_token_events"
   );
-  console.log("token", token);
   let _token_id = {
     collection: token[3],
     creator: token[2],
     name: token[4],
   };
   listEvents.sort((a, b) => a.data.timestamp - b.data.timestamp);
-  console.log("listEvents", listEvents);
 
   const result = listEvents.find(({ data }) => {
-    console.log("data.token_id.token_data_id", data.token_id.token_data_id);
     return (
       data.token_id.token_data_id.collection === token[3] &&
       data.token_id.token_data_id.creator === token[2] &&
       data.token_id.token_data_id.name === token[4]
     );
   });
-  console.log("listEvents", result);
   // listEvents?.map(async (item) => {
   //   const data = item.data as ListTokenEventData;
   //   const offerId = data?.offer_id;
@@ -125,21 +121,20 @@ export const handleNfts = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const handleMintRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  console.log(tokenIdData);
   const token = await walletClient.getToken(tokenIdData);
-  console.log(token);
   if (!token) return;
-  const newItem = await nftItem.create({ key: tokenIdData });
+  let newItem = await nftItem.create({ key: tokenIdData });
   newItem.image_uri = token.uri;
   newItem.description = token.description;
   newItem.isForSale = false;
-  newItem.owner = token.creator;
+  newItem.owner = tokenIdData.token_data_id.creator;
   await newItem.save();
   return newItem;
 };
 
 export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  const item = await nftItem
+  console.log("tokenIdData", tokenIdData);
+  let item = await nftItem
     .findOne({
       "key.property_version": tokenIdData.property_version,
       "key.token_data_id.collection": tokenIdData.token_data_id.collection,
@@ -154,7 +149,8 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     "list_token_events",
     { start: 0, limit: 100 }
   );
-  listEvents.sort((a, b) => a.data.timestamp - b.data.timestamp);
+  console.log("listEvents", listEvents);
+  listEvents.sort((a, b) => b.data.timestamp - a.data.timestamp);
   const token = listEvents.find(({ data }) => {
     return (
       data.token_id.property_version == tokenIdData.property_version &&
@@ -168,6 +164,45 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   item.price = token?.data.price;
   item.offer_id = token?.data.offer_id;
   item.isForSale = true;
+  await item.save();
+  return item;
+};
+
+export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
+  console.log("tokenIdData", tokenIdData);
+  let item = await nftItem
+    .findOne({
+      "key.property_version": tokenIdData.property_version,
+      "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+      "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      "key.token_data_id.name": tokenIdData.token_data_id.name,
+    })
+    .exec();
+  if (!item) return;
+  const listEvents = await aptosClient.getEventsByEventHandle(
+    MARKET_ADDRESS!,
+    `${MARKET_ADDRESS}::marketplace::MarketEvents`,
+    "buy_token_events",
+    { start: 0, limit: 100 }
+  );
+  console.log("listEvents", listEvents);
+  listEvents.sort((a, b) => b.data.timestamp - a.data.timestamp);
+  const token = listEvents.find(({ data }) => {
+    return (
+      data.token_id.property_version == tokenIdData.property_version &&
+      data.token_id.token_data_id.collection ===
+        tokenIdData.token_data_id.collection &&
+      data.token_id.token_data_id.creator ===
+        tokenIdData.token_data_id.creator &&
+      data.token_id.token_data_id.name === tokenIdData.token_data_id.name
+    );
+  });
+  if (!token) return;
+  console.log("token", token);
+  item.price = 0;
+  item.offer_id = 0;
+  item.isForSale = false;
+  item.owner = token.data.buyer;
   await item.save();
   return item;
 };

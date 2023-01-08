@@ -4,17 +4,17 @@ import {
   fetchListToken,
   handleMintRequest,
   handleListingRequest,
+  handleCancelRequest,
+  handleBuyRequest,
   updateListToken,
   handleNft,
   handleNfts,
-  handleCancelRequest,
   collectedNft,
 } from "../controller/market.controller";
 
 async function fetchUsers(req: Request, res: Response) {
   try {
     let data = await fetchListToken();
-    console.log("data", data);
     return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
@@ -27,10 +27,16 @@ async function updateItem(req: Request, res: Response) {
     switch (body.type) {
       case "REQUEST_MINT":
         result = await handleMintRequest(body.tokenId);
+        break;
       case "REQUEST_LIST":
         result = await handleListingRequest(body.tokenId);
+        break;
       case "REQUEST_CANCEL":
         result = await handleCancelRequest(body.tokenId);
+        break;
+      case "REQUEST_PURCHASE":
+        result = await handleBuyRequest(body.tokenId);
+        break;
       default:
         break;
     }
@@ -47,7 +53,6 @@ async function fetchNft(req: Request, res: Response) {
   try {
     const body: I_TOKEN_ID_DATA = req.body;
     let result = await handleNft(body);
-    console.log("result", result);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
