@@ -152,16 +152,13 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     { start: 0, limit: 100 }
   );
   listEvents.sort((a, b) => b.data.timestamp - a.data.timestamp);
-  const token = listEvents.find(({ data }) => {
-    return (
+  const token = listEvents.find(
+    ({ data }) =>
       data.token_id.property_version == tokenIdData.property_version &&
-      data.token_id.token_data_id.collection ===
+      data.token_id.token_data_id.collection ==
         tokenIdData.token_data_id.collection &&
-      data.token_id.token_data_id.creator ===
-        tokenIdData.token_data_id.creator &&
-      data.token_id.token_data_id.name === tokenIdData.token_data_id.name
-    );
-  });
+      data.token_id.token_data_id.name == tokenIdData.token_data_id.name
+  );
   item.price = token?.data.price;
   item.offer_id = token?.data.offer_id;
   item.isForSale = true;
@@ -191,10 +188,8 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   const token = listEvents.find(({ data }) => {
     return (
       data.token_id.property_version == tokenIdData.property_version &&
-      data.token_id.token_data_id.collection ===
+      data.token_id.token_data_id.collection ==
         tokenIdData.token_data_id.collection &&
-      data.token_id.token_data_id.creator ===
-        tokenIdData.token_data_id.creator &&
       data.token_id.token_data_id.name === tokenIdData.token_data_id.name
     );
   });
@@ -230,8 +225,6 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       data.token_id.property_version == tokenIdData.property_version &&
       data.token_id.token_data_id.collection ===
         tokenIdData.token_data_id.collection &&
-      data.token_id.token_data_id.creator ===
-        tokenIdData.token_data_id.creator &&
       data.token_id.token_data_id.name === tokenIdData.token_data_id.name
     );
   });
