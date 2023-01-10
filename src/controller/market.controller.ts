@@ -24,6 +24,12 @@ export const collectedNft = async (address: string) => {
   });
   return result;
 };
+export const collection = async (slug: string) => {
+  const result = await nftItem.find({
+    "key.token_data_id.collection": slug,
+  });
+  return result;
+};
 
 export const updateListToken = async (token: any) => {
   const listEvents = await aptosClient.getEventsByEventHandle(

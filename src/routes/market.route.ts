@@ -10,6 +10,7 @@ import {
   handleNft,
   handleNfts,
   collectedNft,
+  collection,
 } from "../controller/market.controller";
 
 async function fetchUsers(req: Request, res: Response) {
@@ -71,6 +72,17 @@ async function fetchCollectedNft(req: Request, res: Response) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
+async function fetchCollection(req: Request, res: Response) {
+  try {
+    let slug: string = req.params.slug;
+    let result = await collection(slug);
+    // console.log("result", result);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
 
 module.exports = () => {
   const marketRoute = express.Router();
@@ -78,5 +90,6 @@ module.exports = () => {
   marketRoute.put("/update", updateItem);
   marketRoute.put("/nft", fetchNft);
   marketRoute.get("/collected/:address", fetchCollectedNft);
+  marketRoute.get("/collection/:slug", fetchCollection);
   return marketRoute;
 };
