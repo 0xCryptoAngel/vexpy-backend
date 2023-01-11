@@ -22,9 +22,10 @@ export const collectedNft = async (address: string) => {
   const data = await walletClient.getTokenIds(address);
   await Promise.all(
     data.tokenIds
-      .filter((i) => i.difference != 0)
+      .filter((i) => i.difference > 0)
       .map(async (i) => {
         const token = await walletClient.getToken(i.data);
+        console.log("token", token);
         const item = await nftItem
           .findOne({
             "key.property_version": i.data.property_version,
