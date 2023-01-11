@@ -60,10 +60,12 @@ export const collectedNft = async (address: string) => {
   return result;
 };
 export const collection = async (slug: string) => {
-  const result = await nftItem.find({
-    "key.token_data_id.collection": slug,
-    isForSale: true,
-  });
+  const result = await nftItem
+    .find({
+      "key.token_data_id.collection": slug,
+      isForSale: true,
+    })
+    .sort({ price: 1 });
   return result;
 };
 
