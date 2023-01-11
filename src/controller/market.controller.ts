@@ -19,6 +19,20 @@ export const fetchListToken = async () => {
 };
 
 export const collectedNft = async (address: string) => {
+  const data = await walletClient.getTokenIds(address);
+  await Promise.all(
+    data.tokenIds
+      .filter((i) => i.difference != 0)
+      .map(async (i) => {
+        const token = await walletClient.getToken(i.data);
+        let newItem = await nftItem.create({ key: i.data });
+        newItem.image_uri = token.uri;
+        newItem.description = token.description;
+        newItem.isForSale = false;
+        newItem.owner = address;
+        await newItem.save();
+      })
+  );
   const result = await nftItem.find({
     owner: address,
   });
