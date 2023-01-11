@@ -34,8 +34,19 @@ export const collectedNft = async (address: string) => {
           })
           .exec();
         if (item == null) {
+          let imageUri: string;
+          if (token.uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
+            imageUri = token.uri;
+          } else {
+            if (token.uri?.length > 0) {
+              const test = await axios.get(token.uri, {
+                headers: { "Accept-Encoding": "gzip,deflate,compress" },
+              });
+              imageUri = test.data?.image;
+            }
+          }
           let newItem = await nftItem.create({ key: i.data });
-          newItem.image_uri = token.uri;
+          newItem.image_uri = imageUri!;
           newItem.description = token.description;
           newItem.isForSale = false;
           newItem.owner = address;
