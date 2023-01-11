@@ -27,19 +27,20 @@ export const collectedNft = async (address: string) => {
         const token = await walletClient.getToken(i.data);
         const item = await nftItem
           .findOne({
-            "key.property_version": token.property_version,
-            "key.token_data_id.collection": token.token_data_id.collection,
-            "key.token_data_id.creator": token.token_data_id.creator,
-            "key.token_data_id.name": token.token_data_id.name,
+            "key.property_version": i.data.property_version,
+            "key.token_data_id.collection": i.data.token_data_id.collection,
+            "key.token_data_id.creator": i.data.token_data_id.creator,
+            "key.token_data_id.name": i.data.token_data_id.name,
           })
           .exec();
-        if (item) return;
-        let newItem = await nftItem.create({ key: i.data });
-        newItem.image_uri = token.uri;
-        newItem.description = token.description;
-        newItem.isForSale = false;
-        newItem.owner = address;
-        await newItem.save();
+        if (item == null) {
+          let newItem = await nftItem.create({ key: i.data });
+          newItem.image_uri = token.uri;
+          newItem.description = token.description;
+          newItem.isForSale = false;
+          newItem.owner = address;
+          await newItem.save();
+        }
       })
   );
   const result = await nftItem.find({
