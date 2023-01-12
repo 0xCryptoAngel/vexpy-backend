@@ -22,7 +22,7 @@ export const collectedNft = async (address: string) => {
   const data = await walletClient.getTokenIds(address);
   await Promise.all(
     data.tokenIds
-      .filter((i) => i.difference > 0)
+      .filter((i) => i.difference != 0)
       .map(async (i) => {
         const token = await walletClient.getToken(i.data);
         const item = await nftItem
@@ -50,6 +50,7 @@ export const collectedNft = async (address: string) => {
           newItem.description = token.description;
           newItem.isForSale = false;
           newItem.owner = address;
+          newItem.token_uri = token.uri;
           // newItem.metadata = token.default_properties.map.data;
           // console.log("-----------", token.default_properties.map.data);
           // console.log("*************", newItem.metadata);
