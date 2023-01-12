@@ -25,7 +25,6 @@ export const collectedNft = async (address: string) => {
       .filter((i) => i.difference > 0)
       .map(async (i) => {
         const token = await walletClient.getToken(i.data);
-        console.log("token", token);
         const item = await nftItem
           .findOne({
             "key.property_version": i.data.property_version,
@@ -51,6 +50,9 @@ export const collectedNft = async (address: string) => {
           newItem.description = token.description;
           newItem.isForSale = false;
           newItem.owner = address;
+          // newItem.metadata = token.default_properties.map.data;
+          // console.log("-----------", token.default_properties.map.data);
+          // console.log("*************", newItem.metadata);
           await newItem.save();
         }
       })
@@ -152,7 +154,6 @@ export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
     .findOne({
       "key.property_version": tokenIdData.property_version,
       "key.token_data_id.collection": tokenIdData.token_data_id.collection,
-      "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       "key.token_data_id.name": tokenIdData.token_data_id.name,
     })
     .exec();
