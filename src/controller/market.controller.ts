@@ -19,49 +19,6 @@ export const fetchListToken = async () => {
 };
 
 export const collectedNft = async (address: string) => {
-  // const data = await walletClient.getTokenIds(address, 100, 0, 0);
-  // await Promise.all(
-  //   data.tokenIds
-  //     .filter((i) => i.difference > 0)
-  //     .map(async (i) => {
-  //       const token = await walletClient.getToken(i.data);
-  //       console.log("token", token);
-  //       // const item = await nftItem
-  //       //   .findOne({
-  //       //     "key.property_version": i.data.property_version,
-  //       //     "key.token_data_id.collection": i.data.token_data_id.collection,
-  //       //     "key.token_data_id.creator": i.data.token_data_id.creator,
-  //       //     "key.token_data_id.name": i.data.token_data_id.name,
-  //       //   })
-  //       //   .exec();
-  //       // if (item == null) {
-  //       //   let imageUri: string;
-  //       //   if (token.uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
-  //       //     imageUri = token.uri;
-  //       //   } else {
-  //       //     if (token.uri?.length > 0) {
-  //       //       const test = await axios.get(token.uri, {
-  //       //         headers: { "Accept-Encoding": "gzip,deflate,compress" },
-  //       //       });
-  //       //       imageUri = test.data?.image;
-  //       //     }
-  //       //   }
-  //       //   // let newItem = await nftItem.create({ key: i.data });
-  //       //   // newItem.image_uri = imageUri!;
-  //       //   // newItem.description = token.description;
-  //       //   // newItem.isForSale = false;
-  //       //   // newItem.owner = address;
-  //       //   // newItem.token_uri = token.uri;
-
-  //       //   // newItem.metadata = token.default_properties.map.data;
-  //       //   // console.log("-----------", token.default_properties.map.data);
-  //       //   // console.log("*************", newItem.metadata);
-
-  //       //   // await newItem.save();
-  //       // }
-  //     })
-  // );
-
   async function fetchGraphQL(
     operationsDoc: string,
     operationName: string,
