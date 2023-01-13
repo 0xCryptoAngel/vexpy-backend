@@ -15,15 +15,7 @@ const NftItem: Schema = new Schema({
   offer_id: { type: Number, default: 0 },
   description: { type: String, default: "" },
   image_uri: { type: String, default: "" },
-  metadata: [
-    {
-      key: String,
-      value: {
-        type: String,
-        value: String,
-      },
-    },
-  ],
+  metadata: [Schema.Types.Mixed],
   token_uri: {
     type: String,
     default: "",

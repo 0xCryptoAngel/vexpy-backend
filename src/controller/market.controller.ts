@@ -19,45 +19,160 @@ export const fetchListToken = async () => {
 };
 
 export const collectedNft = async (address: string) => {
-  const data = await walletClient.getTokenIds(address);
-  await Promise.all(
-    data.tokenIds
-      .filter((i) => i.difference != 0)
-      .map(async (i) => {
-        const token = await walletClient.getToken(i.data);
+  // const data = await walletClient.getTokenIds(address, 100, 0, 0);
+  // await Promise.all(
+  //   data.tokenIds
+  //     .filter((i) => i.difference > 0)
+  //     .map(async (i) => {
+  //       const token = await walletClient.getToken(i.data);
+  //       console.log("token", token);
+  //       // const item = await nftItem
+  //       //   .findOne({
+  //       //     "key.property_version": i.data.property_version,
+  //       //     "key.token_data_id.collection": i.data.token_data_id.collection,
+  //       //     "key.token_data_id.creator": i.data.token_data_id.creator,
+  //       //     "key.token_data_id.name": i.data.token_data_id.name,
+  //       //   })
+  //       //   .exec();
+  //       // if (item == null) {
+  //       //   let imageUri: string;
+  //       //   if (token.uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
+  //       //     imageUri = token.uri;
+  //       //   } else {
+  //       //     if (token.uri?.length > 0) {
+  //       //       const test = await axios.get(token.uri, {
+  //       //         headers: { "Accept-Encoding": "gzip,deflate,compress" },
+  //       //       });
+  //       //       imageUri = test.data?.image;
+  //       //     }
+  //       //   }
+  //       //   // let newItem = await nftItem.create({ key: i.data });
+  //       //   // newItem.image_uri = imageUri!;
+  //       //   // newItem.description = token.description;
+  //       //   // newItem.isForSale = false;
+  //       //   // newItem.owner = address;
+  //       //   // newItem.token_uri = token.uri;
+
+  //       //   // newItem.metadata = token.default_properties.map.data;
+  //       //   // console.log("-----------", token.default_properties.map.data);
+  //       //   // console.log("*************", newItem.metadata);
+
+  //       //   // await newItem.save();
+  //       // }
+  //     })
+  // );
+
+  async function fetchGraphQL(
+    operationsDoc: string,
+    operationName: string,
+    variables: Record<string, any>
+  ) {
+    const result = await fetch(
+      "https://indexer.mainnet.aptoslabs.com/v1/graphql",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          query: operationsDoc,
+          variables: variables,
+          operationName: operationName,
+        }),
+      }
+    );
+    return await result.json();
+  }
+
+  const operation = `
+    query CurrentTokens($owner_address: String, $offset: Int) {
+      current_token_ownerships(
+        where: {owner_address: {_eq: $owner_address}, amount: {_gt: "0"}, table_type: {_eq: "0x3::token::TokenStore"}}
+        order_by: {last_transaction_version: desc}
+        offset: $offset
+      ) {
+        name
+        collection_name
+        property_version
+        creator_address
+        amount
+        owner_address
+        current_token_data {
+          metadata_uri
+          description
+          royalty_points_denominator
+          royalty_points_numerator
+          royalty_mutable
+          default_properties
+        }
+      }
+    }
+`;
+
+  const fetchCurrentTokens = (owner_address: string, offset: number) => {
+    return fetchGraphQL(operation, "CurrentTokens", {
+      owner_address: owner_address,
+      offset: offset,
+    });
+  };
+  const startFetchCurrentTokens = async (
+    owner_address: string,
+    offset: number
+  ) => {
+    const { errors, data } = await fetchCurrentTokens(owner_address, offset);
+    if (errors) {
+      console.error(errors);
+    }
+
+    await Promise.all(
+      data.current_token_ownerships.map(async (token: any, i: number) => {
         const item = await nftItem
           .findOne({
-            "key.property_version": i.data.property_version,
-            "key.token_data_id.collection": i.data.token_data_id.collection,
-            "key.token_data_id.creator": i.data.token_data_id.creator,
-            "key.token_data_id.name": i.data.token_data_id.name,
+            "key.property_version": token.property_version,
+            "key.token_data_id.collection": token.collection_name,
+            "key.token_data_id.creator": token.creator_address,
+            "key.token_data_id.name": token.name,
           })
           .exec();
         if (item == null) {
+          console.log("token", token);
           let imageUri: string;
           if (token.uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
-            imageUri = token.uri;
+            imageUri = token.current_token_data.metadata_uri;
           } else {
             if (token.uri?.length > 0) {
-              const test = await axios.get(token.uri, {
-                headers: { "Accept-Encoding": "gzip,deflate,compress" },
-              });
+              const test = await axios.get(
+                token.current_token_data.metadata_uri,
+                {
+                  headers: { "Accept-Encoding": "gzip,deflate,compress" },
+                }
+              );
               imageUri = test.data?.image;
             }
           }
-          let newItem = await nftItem.create({ key: i.data });
+          let newItem = await nftItem.create({
+            key: {
+              property_version: token.property_version,
+              token_data_id: {
+                collection: token.collection_name,
+                creator: token.creator_address,
+                name: token.name,
+              },
+            },
+          });
           newItem.image_uri = imageUri!;
-          newItem.description = token.description;
+          newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
-          newItem.owner = address;
-          newItem.token_uri = token.uri;
+          newItem.owner = token.owner_address;
+          newItem.token_uri = token.current_token_data.metadata_uri;
           // newItem.metadata = token.default_properties.map.data;
           // console.log("-----------", token.default_properties.map.data);
           // console.log("*************", newItem.metadata);
           await newItem.save();
         }
       })
-  );
+    );
+  };
+
+  startFetchCurrentTokens(address, 0);
+
   const result = await nftItem.find({
     owner: address,
   });
