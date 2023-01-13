@@ -1,12 +1,4 @@
-import { listToken } from "../db/schema/listToken";
-import {
-  aptosClient,
-  walletClient,
-  tokenClient,
-  MARKET_ADDRESS,
-} from "../config/constants";
-import { ListTokenEventData } from "../types";
-import { TokenData } from "../types/structs/TokenData";
+import { aptosClient, tokenClient, MARKET_ADDRESS } from "../config/constants";
 import axios from "axios";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
@@ -70,12 +62,15 @@ export const collectedNft = async (address: string) => {
           })
           .exec();
         if (item == null) {
-          console.log("token", token);
           let imageUri: string;
-          if (token.uri?.slice(-5).includes(".png" || ".jpeg" || ".jpg")) {
+          if (
+            token.current_token_data.metadata_uri
+              ?.slice(-5)
+              .includes(".png" || ".jpeg" || ".jpg")
+          ) {
             imageUri = token.current_token_data.metadata_uri;
           } else {
-            if (token.uri?.length > 0) {
+            if (token.current_token_data.metadata_uri?.length > 0) {
               const test = await axios.get(
                 token.current_token_data.metadata_uri,
                 {
@@ -211,7 +206,6 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
           tokenIdData.token_data_id.collection &&
         token.data.token_id.token_data_id.name == tokenIdData.token_data_id.name
     );
-    console.log("token", token);
     item.price = token?.data.price;
     item.offer_id = token?.data.offer_id;
     item.isForSale = true;
@@ -261,7 +255,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     item.price = 0;
     item.offer_id = 0;
     item.isForSale = false;
-    item.owner = token.data.buyer;
+    item.owner = `0x${token.data.buyer.str.substring(2).padStart(64, "0")}`;
     await item.save();
     return item;
   }
