@@ -62,6 +62,7 @@ export const collectedNft = async (address: string) => {
             "key.token_data_id.name": token.name,
           })
           .exec();
+        console.log("_________", token);
         if (item == null) {
           let imageUri: string;
           if (
@@ -72,8 +73,15 @@ export const collectedNft = async (address: string) => {
             imageUri = token.current_token_data.metadata_uri;
           } else {
             if (token.current_token_data.metadata_uri?.length > 0) {
+              console.log(
+                "token.current_token_data.metadata_uri",
+                token.current_token_data.metadata_uri
+              );
               const test = await axios.get(
-                token.current_token_data.metadata_uri,
+                token.current_token_data.metadata_uri.replace(
+                  "ipfs://",
+                  "https://ipfs.io/ipfs/"
+                ),
                 {
                   headers: { "Accept-Encoding": "gzip,deflate,compress" },
                 }

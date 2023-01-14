@@ -64,7 +64,6 @@ async function fetchCollectedNft(req: Request, res: Response) {
   try {
     let address: string = req.params.address;
     let result = await collectedNft(address);
-    // console.log("result", result);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
