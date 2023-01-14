@@ -42,8 +42,7 @@ async function updateItem(req: Request, res: Response) {
         break;
     }
     // let data = await updateListToken(req.body);
-
-    return res.status(200).send(body);
+    return res.status(200).send(result);
   } catch (err) {
     console.log(err);
     return res.status(500).send({ response: "Error", result: err });

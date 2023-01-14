@@ -3,6 +3,7 @@ import axios from "axios";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
+import { delay } from "../utils/delay";
 export const fetchListToken = async () => {
   const result = await nftItem.find({
     isForSale: true,
@@ -181,6 +182,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     type: string,
     offset: number
   ) {
+    await delay(5000);
     const { errors, data } = await fetchListEvent(
       account_address,
       type,
@@ -199,13 +201,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       })
       .exec();
     if (!item) return;
-    const token = data.events.find(
-      (token: any) =>
-        token.data.token_id.property_version == tokenIdData.property_version &&
-        token.data.token_id.token_data_id.collection ==
-          tokenIdData.token_data_id.collection &&
-        token.data.token_id.token_data_id.name == tokenIdData.token_data_id.name
-    );
+    const token = data.events[0];
     item.price = token?.data.price;
     item.offer_id = token?.data.offer_id;
     item.isForSale = true;
@@ -213,11 +209,12 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     return item;
   }
 
-  startFetchListEvent(
+  let item = startFetchListEvent(
     MARKET_ADDRESS!,
     `${MARKET_ADDRESS}::marketplace::ListTokenEvent`,
     0
   );
+  return item;
 };
 
 export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
@@ -226,6 +223,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     type: string,
     offset: number
   ) {
+    await delay(5000);
     const { errors, data } = await fetchListEvent(
       account_address,
       type,
@@ -244,27 +242,21 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       })
       .exec();
     if (!item) return;
-    const token = data.events.find(
-      (token: any) =>
-        token.data.token_id.property_version == tokenIdData.property_version &&
-        token.data.token_id.token_data_id.collection ==
-          tokenIdData.token_data_id.collection &&
-        token.data.token_id.token_data_id.name == tokenIdData.token_data_id.name
-    );
-    if (!token) return;
+    const token = data.events[0];
     item.price = 0;
     item.offer_id = 0;
     item.isForSale = false;
-    item.owner = `0x${token.data.buyer.str.substring(2).padStart(64, "0")}`;
+    item.owner = `0x${token.data.buyer.substring(2).padStart(64, "0")}`;
     await item.save();
     return item;
   }
 
-  startFetchListEvent(
+  let item = startFetchListEvent(
     MARKET_ADDRESS!,
     `${MARKET_ADDRESS}::marketplace::BuyTokenEvent`,
     0
   );
+  return item;
 };
 
 export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
@@ -273,6 +265,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     type: string,
     offset: number
   ) {
+    await delay(5000);
     const { errors, data } = await fetchListEvent(
       account_address,
       type,
@@ -291,14 +284,6 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       })
       .exec();
     if (!item) return;
-    const token = data.events.find(
-      (token: any) =>
-        token.data.token_id.property_version == tokenIdData.property_version &&
-        token.data.token_id.token_data_id.collection ==
-          tokenIdData.token_data_id.collection &&
-        token.data.token_id.token_data_id.name == tokenIdData.token_data_id.name
-    );
-    if (!token) return;
     item.price = 0;
     item.offer_id = 0;
     item.isForSale = false;
@@ -306,9 +291,10 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     return item;
   }
 
-  startFetchListEvent(
+  let item = startFetchListEvent(
     MARKET_ADDRESS!,
     `${MARKET_ADDRESS}::marketplace::CancelSaleEvent`,
     0
   );
+  return item;
 };
