@@ -62,7 +62,6 @@ export const collectedNft = async (address: string) => {
             "key.token_data_id.name": token.name,
           })
           .exec();
-        console.log("_________", token);
         if (item == null) {
           let imageUri: string;
           if (
