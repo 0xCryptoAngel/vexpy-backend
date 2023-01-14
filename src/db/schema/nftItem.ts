@@ -20,6 +20,9 @@ const NftItem: Schema = new Schema({
     type: String,
     default: "",
   },
+  collection_name: { type: String, default: "" },
+  collection_description: { type: String, default: "" },
+  collection_metadata_uri: { type: String, default: "" },
 });
 // Define schema of collection in mongoDB
 export const nftItem = model("NftItem", NftItem);

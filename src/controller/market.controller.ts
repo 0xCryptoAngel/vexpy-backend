@@ -13,28 +13,33 @@ export const fetchListToken = async () => {
 
 export const collectedNft = async (address: string) => {
   const operation = `
-    query CurrentTokens($owner_address: String, $offset: Int) {
-      current_token_ownerships(
-        where: {owner_address: {_eq: $owner_address}, amount: {_gt: "0"}, table_type: {_eq: "0x3::token::TokenStore"}}
-        order_by: {last_transaction_version: desc}
-        offset: $offset
-      ) {
-        name
+  query CurrentTokens($owner_address: String, $offset: Int) {
+    current_token_ownerships(
+      where: {owner_address: {_eq: $owner_address}, amount: {_gt: "0"}, table_type: {_eq: "0x3::token::TokenStore"}}
+      order_by: {last_transaction_version: desc}
+      offset: $offset
+    ) {
+      name
+      collection_name
+      property_version
+      creator_address
+      amount
+      owner_address
+      current_token_data {
+        metadata_uri
+        description
+        royalty_points_denominator
+        royalty_points_numerator
+        royalty_mutable
+        default_properties
+      }
+      current_collection_data {
         collection_name
-        property_version
-        creator_address
-        amount
-        owner_address
-        current_token_data {
-          metadata_uri
-          description
-          royalty_points_denominator
-          royalty_points_numerator
-          royalty_mutable
-          default_properties
-        }
+        description
+        metadata_uri
       }
     }
+  }
 `;
 
   const fetchCurrentTokens = (owner_address: string, offset: number) => {
@@ -85,7 +90,10 @@ export const collectedNft = async (address: string) => {
                   headers: { "Accept-Encoding": "gzip,deflate,compress" },
                 }
               );
-              imageUri = test.data?.image;
+              imageUri = test.data?.image.replace(
+                "ipfs://",
+                "https://ipfs.io/ipfs/"
+              );
             }
           }
           let newItem = await nftItem.create({
@@ -102,7 +110,19 @@ export const collectedNft = async (address: string) => {
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.owner = token.owner_address;
-          newItem.token_uri = token.current_token_data.metadata_uri;
+          newItem.token_uri = token.current_token_data.metadata_uri.replace(
+            "ipfs://",
+            "https://ipfs.io/ipfs/"
+          );
+          newItem.collection_name =
+            token.current_collection_data.collection_name;
+          newItem.collection_description =
+            token.current_collection_data.description;
+          newItem.collection_collection_metadata_uri =
+            token.current_collection_data.metadata_uri.replace(
+              "ipfs://",
+              "https://ipfs.io/ipfs/"
+            );
           // newItem.metadata = token.default_properties.map.data;
           // console.log("-----------", token.default_properties.map.data);
           // console.log("*************", newItem.metadata);
