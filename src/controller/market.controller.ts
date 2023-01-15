@@ -146,13 +146,23 @@ export const collectedNft = async (address: string) => {
 };
 export const collection = async (slug: string, _isForSale: any) => {
   var isForSale = _isForSale === "true";
-  const result = await nftItem
-    .find({
-      "key.token_data_id.collection": slug,
-      isForSale: isForSale,
-    })
-    .sort({ price: 1 });
-  return result;
+  let result: any;
+  if (isForSale) {
+    result = await nftItem
+      .find({
+        "key.token_data_id.collection": slug,
+        isForSale: isForSale,
+      })
+      .sort({ price: 1 });
+    return result;
+  } else {
+    result = await nftItem
+      .find({
+        "key.token_data_id.collection": slug,
+      })
+      .sort({ price: 1 });
+    return result;
+  }
 };
 
 export const updateListToken = async (token: any) => {
