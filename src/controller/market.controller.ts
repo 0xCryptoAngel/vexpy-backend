@@ -82,18 +82,22 @@ export const collectedNft = async (address: string) => {
                 token.current_token_data.metadata_uri
               );
               const test = await axios.get(
-                token.current_token_data.metadata_uri.replace(
-                  "ipfs://",
-                  "https://ipfs.io/ipfs/"
-                ),
+                token.current_token_data.metadata_uri
+                  .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                  .replace(
+                    "https://ipfs.io/ipfs/",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  ),
                 {
                   headers: { "Accept-Encoding": "gzip,deflate,compress" },
                 }
               );
-              imageUri = test.data?.image.replace(
-                "ipfs://",
-                "https://ipfs.io/ipfs/"
-              );
+              imageUri = test.data?.image
+                .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                .replace(
+                  "https://ipfs.io/ipfs/",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                );
             }
           }
           let newItem = await nftItem.create({
@@ -110,22 +114,23 @@ export const collectedNft = async (address: string) => {
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.owner = token.owner_address;
-          newItem.token_uri = token.current_token_data.metadata_uri.replace(
-            "ipfs://",
-            "https://ipfs.io/ipfs/"
-          );
+          newItem.token_uri = token.current_token_data.metadata_uri
+            .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+            .replace(
+              "https://ipfs.io/ipfs/",
+              "https://cloudflare-ipfs.com/ipfs/"
+            );
           newItem.collection_name =
             token.current_collection_data.collection_name;
           newItem.collection_description =
             token.current_collection_data.description;
-          newItem.collection_collection_metadata_uri =
-            token.current_collection_data.metadata_uri.replace(
-              "ipfs://",
-              "https://ipfs.io/ipfs/"
-            );
-          // newItem.metadata = token.default_properties.map.data;
-          // console.log("-----------", token.default_properties.map.data);
-          // console.log("*************", newItem.metadata);
+          newItem.collection_metadata_uri =
+            token.current_collection_data.metadata_uri
+              .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+              .replace(
+                "https://ipfs.io/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/"
+              );
           await newItem.save();
         }
       })
