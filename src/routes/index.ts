@@ -2,7 +2,7 @@ import express from "express";
 
 module.exports = () => {
   const router = express.Router();
-  const marketRoute = require("./market.route")();
-  router.use("/market", marketRoute);
+  const nftRoute = require("./nft.route")();
+  router.use("/market", nftRoute);
   return router;
 };

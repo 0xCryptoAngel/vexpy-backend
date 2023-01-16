@@ -11,7 +11,7 @@ import {
   handleNfts,
   collectedNft,
   collection,
-} from "../controller/market.controller";
+} from "../controller/nft.controller";
 
 async function fetchUsers(req: Request, res: Response) {
   try {
@@ -84,11 +84,11 @@ async function fetchCollection(req: Request, res: Response) {
 }
 
 module.exports = () => {
-  const marketRoute = express.Router();
-  marketRoute.get("/fetch", fetchUsers);
-  marketRoute.put("/update", updateItem);
-  marketRoute.put("/nft", fetchNft);
-  marketRoute.get("/collected/:address", fetchCollectedNft);
-  marketRoute.get("/collection/:slug", fetchCollection);
-  return marketRoute;
+  const nftRoute = express.Router();
+  nftRoute.get("/fetch", fetchUsers);
+  nftRoute.put("/update", updateItem);
+  nftRoute.put("/nft", fetchNft);
+  nftRoute.get("/collected/:address", fetchCollectedNft);
+  nftRoute.get("/collection/:slug", fetchCollection);
+  return nftRoute;
 };
