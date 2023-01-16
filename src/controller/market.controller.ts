@@ -144,6 +144,7 @@ export const collectedNft = async (address: string) => {
   });
   return result;
 };
+
 export const collection = async (slug: string, _isForSale: any) => {
   var isForSale = _isForSale === "true";
   let result: any;
@@ -289,6 +290,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     item.price = 0;
     item.offer_id = 0;
     item.isForSale = false;
+    item.volume += token.price;
     item.owner = `0x${token.data.buyer.substring(2).padStart(64, "0")}`;
     await item.save();
     return item;
