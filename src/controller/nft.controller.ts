@@ -2,6 +2,7 @@ import { aptosClient, tokenClient, MARKET_ADDRESS } from "../config/constants";
 import axios from "axios";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
+import { collectionItem } from "../db/schema/collectionItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 export const fetchListToken = async () => {
@@ -37,6 +38,7 @@ export const collectedNft = async (address: string) => {
         collection_name
         description
         metadata_uri
+        supply
       }
     }
   }
@@ -93,7 +95,7 @@ export const collectedNft = async (address: string) => {
                 }
               );
               imageUri = test.data?.image
-                .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
                 .replace(
                   "https://ipfs.io/ipfs/",
                   "https://cloudflare-ipfs.com/ipfs/"
@@ -132,6 +134,28 @@ export const collectedNft = async (address: string) => {
                 "https://cloudflare-ipfs.com/ipfs/"
               );
           await newItem.save();
+          /******/
+          let collecteditem = await collectionItem.create({
+            key: {
+              property_version: token.property_version,
+              token_data_id: {
+                collection: token.collection_name,
+                creator: token.creator_address,
+                name: "",
+              },
+            },
+          });
+          collecteditem.supply = token.current_collection_data.supply;
+          let itemAmount = await nftItem
+            .find({
+              "key.token_data_id.collection": token.collection_name,
+            })
+            .distinct("owner")
+            .exec();
+          if (!itemAmount) return;
+          collecteditem.owner = itemAmount.length;
+          await collecteditem.save();
+          /******/
         }
       })
     );
@@ -250,6 +274,30 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     item.offer_id = token?.data.offer_id;
     item.isForSale = true;
     await item.save();
+
+    /*update listed items*/
+    let listedItem = await nftItem
+      .find({
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        isForSale: true,
+      })
+      .sort({ price: 1 })
+      .exec();
+    if (!listedItem) return;
+    console.log("listedItem", listedItem);
+
+    let collecteditem = await collectionItem
+      .findOne({
+        "key.property_version": tokenIdData.property_version,
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      })
+      .exec();
+    if (!collecteditem) return;
+    collecteditem.listed = listedItem.length;
+    collecteditem.floor = listedItem[0].price;
+    await collecteditem.save();
+    /* end */
     return item;
   }
 
@@ -290,9 +338,41 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     item.price = 0;
     item.offer_id = 0;
     item.isForSale = false;
-    item.volume += token.price;
     item.owner = `0x${token.data.buyer.substring(2).padStart(64, "0")}`;
     await item.save();
+    /*update listed items*/
+    let listedItem = await nftItem
+      .find({
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        isForSale: true,
+      })
+      .sort({ price: 1 })
+      .exec();
+    if (!listedItem) return;
+
+    let collecteditem = await collectionItem
+      .findOne({
+        "key.property_version": tokenIdData.property_version,
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      })
+      .exec();
+    if (!collecteditem) return;
+    collecteditem.listed = listedItem.length;
+    collecteditem.floor = listedItem[0].price;
+    collecteditem.volume += parseFloat(token.data.price);
+
+    let itemAmount = await nftItem
+      .find({
+        "key.token_data_id.collection": token.collection_name,
+      })
+      .distinct("owner")
+      .exec();
+    if (!itemAmount) return;
+    collecteditem.owner = itemAmount.length;
+    await collecteditem.save();
+    /* end */
+
     return item;
   }
 
@@ -333,6 +413,30 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     item.offer_id = 0;
     item.isForSale = false;
     await item.save();
+
+    /*update listed items*/
+    let listedItem = await nftItem
+      .find({
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        isForSale: true,
+      })
+      .sort({ price: 1 })
+      .exec();
+    if (!listedItem) return;
+
+    let collecteditem = await collectionItem
+      .findOne({
+        "key.property_version": tokenIdData.property_version,
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+        "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      })
+      .exec();
+    if (!collecteditem) return;
+    collecteditem.listed = listedItem.length;
+    collecteditem.floor = listedItem[0].price;
+    await collecteditem.save();
+    /* end */
+
     return item;
   }
 
