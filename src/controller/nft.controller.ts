@@ -79,27 +79,37 @@ export const collectedNft = async (address: string) => {
             imageUri = token.current_token_data.metadata_uri;
           } else {
             if (token.current_token_data.metadata_uri?.length > 0) {
-              console.log(
-                "token.current_token_data.metadata_uri",
-                token.current_token_data.metadata_uri
-              );
-              const test = await axios.get(
-                token.current_token_data.metadata_uri
-                  .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
-                  .replace(
-                    "https://ipfs.io/ipfs/",
-                    "https://cloudflare-ipfs.com/ipfs/"
-                  ),
-                {
-                  headers: { "Accept-Encoding": "gzip,deflate,compress" },
-                }
-              );
-              imageUri = test.data?.image
-                ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
-                .replace(
-                  "https://ipfs.io/ipfs/",
-                  "https://cloudflare-ipfs.com/ipfs/"
+              try {
+                const test = await axios.get(
+                  token.current_token_data.metadata_uri
+                    .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                    .replace(
+                      "https://ipfs.io/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    ),
+                  {
+                    headers: { "Accept-Encoding": "gzip,deflate,compress" },
+                  }
                 );
+                if (typeof test.data == "object") {
+                  imageUri = test.data?.image
+                    ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                    .replace(
+                      "https://ipfs.io/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    );
+                }
+                if (typeof test.data == "string") {
+                  imageUri = token.current_token_data.metadata_uri
+                    ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                    .replace(
+                      "https://ipfs.io/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    );
+                }
+              } catch (error: any) {
+                console.log(error.response.status);
+              }
             }
           }
           let newItem = await nftItem.create({
@@ -135,33 +145,51 @@ export const collectedNft = async (address: string) => {
               );
           await newItem.save();
           /******/
-          let collecteditem = await collectionItem.create({
-            key: {
-              property_version: token.property_version,
-              token_data_id: {
-                collection: token.collection_name,
-                creator: token.creator_address,
-                name: "",
-              },
-            },
+          let _collectionItem = await collectionItem.findOne({
+            "key.token_data_id.collection": token.collection_name,
           });
-          collecteditem.supply = token.current_collection_data.supply;
-          let itemAmount = await nftItem
-            .find({
-              "key.token_data_id.collection": token.collection_name,
-            })
-            .distinct("owner")
-            .exec();
-          if (!itemAmount) return;
-          collecteditem.owner = itemAmount.length;
-          await collecteditem.save();
-          /******/
+          console.log("token", token);
+          if (_collectionItem == null) {
+            let collecteditem = await collectionItem.create({
+              key: {
+                property_version: token.property_version,
+                token_data_id: {
+                  collection: token.collection_name,
+                  creator: token.creator_address,
+                  name: "",
+                },
+              },
+            });
+            collecteditem.supply = token.current_collection_data.supply;
+            let itemAmount = await nftItem
+              .find({
+                "key.token_data_id.collection": token.collection_name,
+              })
+              .distinct("owner")
+              .exec();
+            if (!itemAmount) return;
+            collecteditem.owner = itemAmount.length;
+            await collecteditem.save();
+            /******/
+          } else {
+            _collectionItem.supply = token.current_collection_data.supply;
+            let itemAmount = await nftItem
+              .find({
+                "key.token_data_id.collection": token.collection_name,
+              })
+              .distinct("owner")
+              .exec();
+            if (!itemAmount) return;
+            _collectionItem.owner = itemAmount.length;
+            await _collectionItem.save();
+            /******/
+          }
         }
       })
     );
   };
 
-  startFetchCurrentTokens(address, 0);
+  await startFetchCurrentTokens(address, 0);
 
   const result = await nftItem.find({
     owner: address,
@@ -295,7 +323,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
-    collecteditem.floor = listedItem[0].price;
+    collecteditem.floor = listedItem[0]?.price;
     await collecteditem.save();
     /* end */
     return item;
@@ -359,12 +387,12 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
-    collecteditem.floor = listedItem[0].price;
+    collecteditem.floor = listedItem[0]?.price;
     collecteditem.volume += parseFloat(token.data.price);
 
     let itemAmount = await nftItem
       .find({
-        "key.token_data_id.collection": token.collection_name,
+        "key.token_data_id.collection": tokenIdData.token_data_id.collection,
       })
       .distinct("owner")
       .exec();
@@ -433,7 +461,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
-    collecteditem.floor = listedItem[0].price;
+    collecteditem.floor = listedItem[0]?.price;
     await collecteditem.save();
     /* end */
 
