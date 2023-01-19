@@ -116,9 +116,9 @@ export const collectedNft = async (address: string) => {
             key: {
               property_version: token.property_version,
               token_data_id: {
-                collection: token.collection_name,
+                collection: token.collection_name.trim(),
                 creator: token.creator_address,
-                name: token.name,
+                name: token.name.trim(),
               },
             },
           });
@@ -154,7 +154,7 @@ export const collectedNft = async (address: string) => {
               key: {
                 property_version: token.property_version,
                 token_data_id: {
-                  collection: token.collection_name,
+                  collection: token.collection_name.trim(),
                   creator: token.creator_address,
                   name: "",
                 },
@@ -263,7 +263,16 @@ export const handleMintRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     tokenIdData.token_data_id.name
   );
   if (!token) return;
-  let newItem = await nftItem.create({ key: tokenIdData });
+  let newItem = await nftItem.create({
+    key: {
+      property_version: tokenIdData.property_version,
+      token_data_id: {
+        collection: tokenIdData.token_data_id.collection.trim(),
+        creator: tokenIdData.token_data_id.creator,
+        name: tokenIdData.token_data_id.name.trim(),
+      },
+    },
+  });
   newItem.image_uri = token.uri;
   newItem.description = token.description;
   newItem.isForSale = false;
