@@ -3,9 +3,15 @@ const CollectionItem: Schema = new Schema({
   key: {
     property_version: String,
     token_data_id: {
-      collection: String,
+      collection: {
+        type: String,
+        trim: true,
+      },
       creator: String,
-      name: String,
+      name: {
+        type: String,
+        trim: true,
+      },
     },
   },
   volume: { type: Number, default: 0 },
