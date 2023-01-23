@@ -3,17 +3,14 @@ export const fetchGraphQL = async (
   operationName: string,
   variables: Record<string, any>
 ) => {
-  const result = await fetch(
-    "https://indexer.mainnet.aptoslabs.com/v1/graphql",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        query: operationsDoc,
-        variables: variables,
-        operationName: operationName,
-      }),
-    }
-  );
+  const result = await fetch(process.env.GRAPHQL_URL!, {
+    method: "POST",
+    body: JSON.stringify({
+      query: operationsDoc,
+      variables: variables,
+      operationName: operationName,
+    }),
+  });
 
   return await result.json();
 };
