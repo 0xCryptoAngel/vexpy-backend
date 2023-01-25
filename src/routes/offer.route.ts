@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import {
   handleMakeRequest,
   fetchMakeOffer,
+  handleAcceptRequest,
 } from "../controller/offer.controller";
 import { I_OFFER_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
 async function updateOffer(req: Request, res: Response) {
@@ -12,9 +13,9 @@ async function updateOffer(req: Request, res: Response) {
       case "REQUEST_MAKE":
         result = await handleMakeRequest(body.tokenId);
         break;
-      // case "REQUEST_ACCEPT":
-      //   result = await handleListingRequest(body.tokenId);
-      //   break;
+      case "REQUEST_ACCEPT":
+        result = await handleAcceptRequest(body.tokenId);
+        break;
       // case "REQUEST_CANCEL":
       //   result = await handleCancelRequest(body.tokenId);
       //   break;

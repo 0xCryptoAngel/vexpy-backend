@@ -18,6 +18,7 @@ const OfferItem: Schema = new Schema({
   owner: { type: String, default: "" },
   offer_id: { type: Number, default: 0 },
   offerer: { type: String, default: "" },
+  duration: { type: Number, default: 0 },
   isforAccept: { type: Boolean, default: false },
 });
 // Define schema of collection in mongoDB
