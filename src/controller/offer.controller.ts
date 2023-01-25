@@ -23,16 +23,6 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     if (errors) {
       console.error(errors);
     }
-    console.log("data", data.events);
-    // let checkItem = await offerItem
-    //   .findOne({
-    //     "key.property_version": tokenIdData.property_version,
-    //     "key.token_data_id.collection": tokenIdData.token_data_id.collection,
-    //     "key.token_data_id.creator": tokenIdData.token_data_id.creator,
-    //     "key.token_data_id.name": tokenIdData.token_data_id.name,
-    //   })
-    //   .exec();
-    // if (!checkItem) {
     let newItem = await offerItem.create({
       key: {
         property_version: tokenIdData.property_version,
@@ -44,13 +34,13 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       },
     });
     newItem.price = data.events[0].data.price;
-    newItem.owner = data.events[0].data.seller;
+    newItem.owner = `0x${data.events[0].data.seller
+      .substring(2)
+      .padStart(64, "0")}`;
     newItem.offer_id = data.events[0].data.offer_id;
     newItem.offerer = data.events[0].data.buyer;
     newItem.isforAccept = true;
     await newItem.save();
-    // }
-
     let item = await offerItem
       .find({
         "key.property_version": tokenIdData.property_version,
@@ -61,11 +51,22 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .exec();
     return item;
   }
-
   let item = startFetchMakeEvent(
     MARKET_ADDRESS!,
     `${MARKET_ADDRESS}::marketplace::MakeOfferEvent`,
     0
   );
+  return item;
+};
+export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
+  console.log("tokenIdData", tokenIdData);
+  let item = await offerItem
+    .find({
+      "key.property_version": tokenIdData.property_version,
+      "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+      "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      "key.token_data_id.name": tokenIdData.token_data_id.name,
+    })
+    .exec();
   return item;
 };
