@@ -116,9 +116,9 @@ export const collectedNft = async (address: string) => {
             key: {
               property_version: token.property_version,
               token_data_id: {
-                collection: token.collection_name.trim(),
+                collection: token.collection_name,
                 creator: token.creator_address,
-                name: token.name.trim(),
+                name: token.name,
               },
             },
           });
@@ -154,7 +154,7 @@ export const collectedNft = async (address: string) => {
               key: {
                 property_version: token.property_version,
                 token_data_id: {
-                  collection: token.collection_name.trim(),
+                  collection: token.collection_name,
                   creator: token.creator_address,
                   name: "",
                 },
@@ -241,13 +241,15 @@ export const updateListToken = async (token: any) => {
 };
 
 export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
+  console.log("tokenIdData", tokenIdData?.token_data_id?.collection);
   const item = await nftItem
     .findOne({
-      "key.property_version": tokenIdData.property_version,
-      "key.token_data_id.collection": tokenIdData.token_data_id.collection,
-      "key.token_data_id.name": tokenIdData.token_data_id.name,
+      "key.property_version": tokenIdData?.property_version,
+      "key.token_data_id.collection": tokenIdData?.token_data_id?.collection,
+      "key.token_data_id.name": tokenIdData?.token_data_id?.name,
     })
     .exec();
+  console.log("item", item);
   return item;
 };
 
@@ -267,9 +269,9 @@ export const handleMintRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     key: {
       property_version: tokenIdData.property_version,
       token_data_id: {
-        collection: tokenIdData.token_data_id.collection.trim(),
+        collection: tokenIdData.token_data_id.collection,
         creator: tokenIdData.token_data_id.creator,
-        name: tokenIdData.token_data_id.name.trim(),
+        name: tokenIdData.token_data_id.name,
       },
     },
   });

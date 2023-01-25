@@ -5,12 +5,10 @@ const NftItem: Schema = new Schema({
     token_data_id: {
       collection: {
         type: String,
-        trim: true,
       },
       creator: String,
       name: {
         type: String,
-        trim: true,
       },
     },
   },
