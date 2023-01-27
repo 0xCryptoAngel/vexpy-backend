@@ -38,7 +38,9 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .substring(2)
       .padStart(64, "0")}`;
     newItem.offer_id = data.events[0].data.offer_id;
-    newItem.offerer = data.events[0].data.buyer;
+    newItem.offerer = `0x${data.events[0].data.buyer
+      .substring(2)
+      .padStart(64, "0")}`;
     newItem.duration = data.events[0].data.expiry_time;
     newItem.isforAccept = true;
     await newItem.save();
