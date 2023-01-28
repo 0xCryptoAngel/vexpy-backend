@@ -84,6 +84,10 @@ export const collectedNft = async (address: string) => {
                   token.current_token_data.metadata_uri
                     .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
                     .replace(
+                      "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                    .replace(
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
                     ),
@@ -95,6 +99,10 @@ export const collectedNft = async (address: string) => {
                   imageUri = test.data?.image
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
                     .replace(
+                      "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                    .replace(
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
@@ -102,6 +110,10 @@ export const collectedNft = async (address: string) => {
                 if (typeof test.data == "string") {
                   imageUri = token.current_token_data.metadata_uri
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                    .replace(
+                      "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
                     .replace(
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
@@ -129,6 +141,10 @@ export const collectedNft = async (address: string) => {
           newItem.token_uri = token.current_token_data.metadata_uri
             .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
             .replace(
+              "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+              "https://cloudflare-ipfs.com/ipfs/"
+            )
+            .replace(
               "https://ipfs.io/ipfs/",
               "https://cloudflare-ipfs.com/ipfs/"
             );
@@ -139,6 +155,10 @@ export const collectedNft = async (address: string) => {
           newItem.collection_metadata_uri =
             token.current_collection_data.metadata_uri
               .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+              .replace(
+                "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/"
+              )
               .replace(
                 "https://ipfs.io/ipfs/",
                 "https://cloudflare-ipfs.com/ipfs/"

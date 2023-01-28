@@ -51,6 +51,7 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
       .exec();
+    console.log("item", item);
     return item;
   }
   let item = startFetchMakeEvent(
