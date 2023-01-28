@@ -14,7 +14,6 @@ const OfferItem: Schema = new Schema({
   },
   price: { type: Number, default: 0 },
   owner: { type: String, default: "" },
-  offer_id: { type: Number, default: 0 },
   offerer: { type: String, default: "" },
   duration: { type: Number, default: 0 },
   isforAccept: { type: Boolean, default: false },

@@ -148,7 +148,6 @@ export const collectedNft = async (address: string) => {
           let _collectionItem = await collectionItem.findOne({
             "key.token_data_id.collection": token.collection_name,
           });
-          console.log("token", token);
           if (_collectionItem == null) {
             let collecteditem = await collectionItem.create({
               key: {
@@ -241,7 +240,6 @@ export const updateListToken = async (token: any) => {
 };
 
 export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  console.log("tokenIdData", tokenIdData?.token_data_id?.collection);
   const item = await nftItem
     .findOne({
       "key.property_version": tokenIdData?.property_version,
@@ -249,7 +247,6 @@ export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
       "key.token_data_id.name": tokenIdData?.token_data_id?.name,
     })
     .exec();
-  console.log("item", item);
   return item;
 };
 
@@ -323,8 +320,6 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .sort({ price: 1 })
       .exec();
     if (!listedItem) return;
-    console.log("listedItem", listedItem);
-
     let collecteditem = await collectionItem
       .findOne({
         "key.property_version": tokenIdData.property_version,
