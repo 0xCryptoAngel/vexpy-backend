@@ -41,6 +41,7 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .substring(2)
       .padStart(64, "0")}`;
     newItem.duration = data.events[0].data.expiry_time;
+    newItem.timestamp = data.events[0].data.timestamp;
     newItem.isforAccept = true;
     await newItem.save();
     let item = await offerItem
@@ -51,7 +52,6 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
       .exec();
-    console.log("item", item);
     return item;
   }
   let item = startFetchMakeEvent(
@@ -72,7 +72,10 @@ export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
     .exec();
   return item;
 };
-export const handleAcceptRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
+export const handleAcceptRequest = async (
+  tokenIdData: I_TOKEN_ID_DATA,
+  _timestamp: number
+) => {
   async function startFetchMakeEvent(
     account_address: string,
     type: string,
@@ -160,6 +163,7 @@ export const handleAcceptRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       "key.token_data_id.collection": tokenIdData.token_data_id.collection,
       "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       "key.token_data_id.name": tokenIdData.token_data_id.name,
+      timestamp: _timestamp,
     });
     let item = await offerItem
       .find({
@@ -179,7 +183,10 @@ export const handleAcceptRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   return item;
 };
 
-export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
+export const handleCancelRequest = async (
+  tokenIdData: I_TOKEN_ID_DATA,
+  _timestamp: number
+) => {
   async function startFetchMakeEvent(
     account_address: string,
     type: string,
@@ -201,6 +208,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       "key.token_data_id.collection": tokenIdData.token_data_id.collection,
       "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       "key.token_data_id.name": tokenIdData.token_data_id.name,
+      timestamp: _timestamp,
     });
     let item = await offerItem
       .find({

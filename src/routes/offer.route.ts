@@ -9,16 +9,17 @@ import { I_OFFER_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
 async function updateOffer(req: Request, res: Response) {
   try {
     const body: I_OFFER_REQUEST = req.body;
+    let timestamp: string = req.query.timestamp as string;
     let result: any;
     switch (body.type) {
       case "REQUEST_MAKE":
         result = await handleMakeRequest(body.tokenId);
         break;
       case "REQUEST_ACCEPT":
-        result = await handleAcceptRequest(body.tokenId);
+        result = await handleAcceptRequest(body.tokenId, parseFloat(timestamp));
         break;
       case "REQUEST_CANCEL":
-        result = await handleCancelRequest(body.tokenId);
+        result = await handleCancelRequest(body.tokenId, parseFloat(timestamp));
         break;
       default:
         break;

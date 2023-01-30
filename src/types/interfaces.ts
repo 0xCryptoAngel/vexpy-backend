@@ -21,5 +21,6 @@ interface I_UPDATE_REQUEST {
 interface I_OFFER_REQUEST {
   type: O_REQUEST_TYPE;
   tokenId: I_TOKEN_ID_DATA;
+  timestamp: number;
 }
 export type { I_UPDATE_REQUEST, I_TOKEN_ID_DATA, I_OFFER_REQUEST };
