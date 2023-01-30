@@ -69,6 +69,7 @@ export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
       "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       "key.token_data_id.name": tokenIdData.token_data_id.name,
     })
+    .sort({ price: -1 })
     .exec();
   return item;
 };
