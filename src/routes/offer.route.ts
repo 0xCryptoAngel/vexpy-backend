@@ -4,6 +4,7 @@ import {
   fetchMakeOffer,
   handleAcceptRequest,
   handleCancelRequest,
+  OfferByAddress,
 } from "../controller/offer.controller";
 import { I_OFFER_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
 async function updateOffer(req: Request, res: Response) {
@@ -42,9 +43,21 @@ async function fetchOffer(req: Request, res: Response) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
+
+async function fetchOfferByAddress(req: Request, res: Response) {
+  try {
+    let address: string = req.params.address;
+    let result = await OfferByAddress(address);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
 module.exports = () => {
   const offerRoute = express.Router();
   offerRoute.put("/update", updateOffer);
   offerRoute.put("/fetch", fetchOffer);
+  offerRoute.get("/:address", fetchOfferByAddress);
   return offerRoute;
 };

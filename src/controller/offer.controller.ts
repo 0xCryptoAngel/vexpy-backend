@@ -61,19 +61,6 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   );
   return item;
 };
-export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  let item = await offerItem
-    .find({
-      "key.property_version": tokenIdData.property_version,
-      "key.token_data_id.collection": tokenIdData.token_data_id.collection,
-      "key.token_data_id.creator": tokenIdData.token_data_id.creator,
-      "key.token_data_id.name": tokenIdData.token_data_id.name,
-    })
-    .sort({ price: -1 })
-    .exec();
-  return item;
-};
-
 export const handleAcceptRequest = async (
   tokenIdData: I_TOKEN_ID_DATA,
   _timestamp: number
@@ -226,5 +213,28 @@ export const handleCancelRequest = async (
     `${MARKET_ADDRESS}::marketplace::CancelOfferEvent`,
     0
   );
+  return item;
+};
+
+export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
+  let item = await offerItem
+    .find({
+      "key.property_version": tokenIdData.property_version,
+      "key.token_data_id.collection": tokenIdData.token_data_id.collection,
+      "key.token_data_id.creator": tokenIdData.token_data_id.creator,
+      "key.token_data_id.name": tokenIdData.token_data_id.name,
+    })
+    .sort({ price: -1 })
+    .exec();
+  return item;
+};
+
+export const OfferByAddress = async (_address: string) => {
+  let item = await offerItem
+    .find({
+      owner: _address,
+    })
+    .sort({ price: -1 })
+    .exec();
   return item;
 };
