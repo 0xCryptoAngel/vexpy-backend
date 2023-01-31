@@ -73,6 +73,7 @@ export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
     .exec();
   return item;
 };
+
 export const handleAcceptRequest = async (
   tokenIdData: I_TOKEN_ID_DATA,
   _timestamp: number
@@ -92,7 +93,6 @@ export const handleAcceptRequest = async (
     if (errors) {
       console.error(errors);
     }
-    console.log("data", data.events[0].data);
     let _item = await nftItem
       .findOne({
         "key.property_version": tokenIdData.property_version,
