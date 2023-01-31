@@ -232,7 +232,7 @@ export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
 export const OfferByAddress = async (_address: string) => {
   let item = await offerItem
     .find({
-      owner: _address,
+      offerer: _address,
     })
     .sort({ price: -1 })
     .exec();
