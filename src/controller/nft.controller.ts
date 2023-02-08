@@ -270,6 +270,16 @@ export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
   return item;
 };
 
+export const handleCollectionNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
+  const item = await nftItem
+    .find({
+      "key.property_version": tokenIdData?.property_version,
+      "key.token_data_id.collection": tokenIdData?.token_data_id?.collection,
+    })
+    .exec();
+  return item[0];
+};
+
 export const handleNfts = async (tokenIdData: I_TOKEN_ID_DATA) => {
   const item = await nftItem.find({}).exec();
   return item;

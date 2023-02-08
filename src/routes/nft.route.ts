@@ -9,6 +9,7 @@ import {
   updateListToken,
   handleNft,
   handleNfts,
+  handleCollectionNft,
   collectedNft,
   collection,
 } from "../controller/nft.controller";
@@ -59,6 +60,16 @@ async function fetchNft(req: Request, res: Response) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
+async function fetchCollectionData(req: Request, res: Response) {
+  try {
+    const body: I_TOKEN_ID_DATA = req.body;
+    let result = await handleCollectionNft(body);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
 
 async function fetchCollectedNft(req: Request, res: Response) {
   try {
@@ -88,6 +99,7 @@ module.exports = () => {
   nftRoute.get("/fetch", fetchUsers);
   nftRoute.put("/update", updateItem);
   nftRoute.put("/nft", fetchNft);
+  nftRoute.put("/collection/nft", fetchCollectionData);
   nftRoute.get("/collected/:address", fetchCollectedNft);
   nftRoute.get("/collection/:slug", fetchCollection);
   return nftRoute;

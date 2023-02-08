@@ -240,6 +240,16 @@ export const OfferByAddress = async (_address: string) => {
   return item;
 };
 
+export const CollectionOfferByAddress = async (_address: string) => {
+  let item = await collectionOffer
+    .find({
+      offerer: _address,
+    })
+    .sort({ price: -1 })
+    .exec();
+  return item;
+};
+
 export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   async function startFetchMakeEvent(
     account_address: string,
