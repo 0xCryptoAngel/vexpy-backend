@@ -95,6 +95,7 @@ export const collectedNft = async (address: string) => {
                     headers: { "Accept-Encoding": "gzip,deflate,compress" },
                   }
                 );
+                //In this case, URL is json
                 if (typeof test.data == "object") {
                   imageUri = test.data?.image
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
@@ -107,6 +108,8 @@ export const collectedNft = async (address: string) => {
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
                 }
+
+                //In this case, URL is image
                 if (typeof test.data == "string") {
                   imageUri = token.current_token_data.metadata_uri
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
