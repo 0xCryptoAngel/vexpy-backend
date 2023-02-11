@@ -410,7 +410,7 @@ export const handleCollectAcceptRequest = async (
     //   "key.token_data_id.creator": tokenIdData.token_data_id.creator,
     //   "key.token_data_id.name": tokenIdData.token_data_id.name,
     // });
-    let item = await _collectionOffer
+    let item = await collectionOffer
       .find({
         "key.property_version": tokenIdData.property_version,
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
