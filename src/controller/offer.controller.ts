@@ -286,7 +286,6 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     newItem.amount = data.events[0].data.amount;
     newItem.isforitem = false;
     await newItem.save();
-    console.log("newItem", newItem);
     // let item = await offerItem
     //   .find({
     //     "key.property_version": tokenIdData.property_version,
@@ -295,14 +294,14 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     //     "key.token_data_id.name": tokenIdData.token_data_id.name,
     //   })
     //   .exec();
-    // return item;
+    return newItem;
   }
-  startFetchMakeEvent(
+  let item = startFetchMakeEvent(
     MARKET_ADDRESS!,
     `${MARKET_ADDRESS}::marketplace::CreateCollectionOfferEvent`,
     0
   );
-  return { value: "ok" };
+  return item;
 };
 export const handleCollectAcceptRequest = async (
   tokenIdData: I_TOKEN_ID_DATA
