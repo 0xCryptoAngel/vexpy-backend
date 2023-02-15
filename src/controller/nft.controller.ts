@@ -1,6 +1,6 @@
 import { aptosClient, tokenClient, MARKET_ADDRESS } from "../config/constants";
 import axios from "axios";
-import { I_TOKEN_ID_DATA } from "../types/interfaces";
+import { I_TOKEN_ID_DATA, I_TOKEN_SLUG } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { collectionItem } from "../db/schema/collectionItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
@@ -13,6 +13,7 @@ export const fetchListToken = async () => {
 };
 
 export const collectedNft = async (address: string) => {
+  console.log("address", address);
   const operation = `
   query CurrentTokens($owner_address: String, $offset: Int) {
     current_token_ownerships(
@@ -141,6 +142,10 @@ export const collectedNft = async (address: string) => {
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.owner = token.owner_address;
+          newItem.slug = `${token.collection_name?.replace(
+            /[^A-Z0-9]+/gi,
+            "-"
+          )}-${token.creator_address.substring(61)}`;
           newItem.token_uri = token.current_token_data.metadata_uri
             .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
             .replace(
@@ -167,10 +172,13 @@ export const collectedNft = async (address: string) => {
                 "https://cloudflare-ipfs.com/ipfs/"
               );
           await newItem.save();
+
+          console.log("newItem", newItem);
           /******/
           let _collectionItem = await collectionItem.findOne({
             "key.token_data_id.collection": token.collection_name,
           });
+          console.log("_collectionItem", _collectionItem);
           if (_collectionItem == null) {
             let collecteditem = await collectionItem.create({
               key: {
@@ -191,6 +199,10 @@ export const collectedNft = async (address: string) => {
               .exec();
             if (!itemAmount) return;
             collecteditem.owner = itemAmount.length;
+            collecteditem.slug = `${token.collection_name?.replace(
+              /[^A-Z0-9]+/gi,
+              "-"
+            )}-${token.creator_address.substring(61)}`;
             await collecteditem.save();
             /******/
           } else {
@@ -203,6 +215,10 @@ export const collectedNft = async (address: string) => {
               .exec();
             if (!itemAmount) return;
             _collectionItem.owner = itemAmount.length;
+            _collectionItem.slug = `${token.collection_name?.replace(
+              /[^A-Z0-9]+/gi,
+              "-"
+            )}-${token.creator_address.substring(61)}`;
             await _collectionItem.save();
             /******/
           }
@@ -225,7 +241,7 @@ export const collection = async (slug: string, _isForSale: any) => {
   if (isForSale) {
     result = await nftItem
       .find({
-        "key.token_data_id.collection": slug,
+        slug: slug,
         isForSale: isForSale,
       })
       .sort({ price: 1 });
@@ -233,7 +249,7 @@ export const collection = async (slug: string, _isForSale: any) => {
   } else {
     result = await nftItem
       .find({
-        "key.token_data_id.collection": slug,
+        slug: slug,
       })
       .sort({ price: 1 });
     return result;
@@ -262,14 +278,17 @@ export const updateListToken = async (token: any) => {
   });
 };
 
-export const handleNft = async (tokenIdData: I_TOKEN_ID_DATA) => {
+export const handleNft = async (tokenIdData: I_TOKEN_SLUG) => {
+  console.log("tokenIdData", tokenIdData);
   const item = await nftItem
     .findOne({
       "key.property_version": tokenIdData?.property_version,
-      "key.token_data_id.collection": tokenIdData?.token_data_id?.collection,
-      "key.token_data_id.name": tokenIdData?.token_data_id?.name,
+      "key.token_data_id.name": tokenIdData?.name,
+      slug: tokenIdData?.slug,
     })
     .exec();
+
+  console.log("********", item);
   return item;
 };
 

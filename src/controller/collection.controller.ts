@@ -19,7 +19,7 @@ export const updateItem = async (
 export const fetchItem = async (slug: string) => {
   let item = await collectionItem
     .findOne({
-      "key.token_data_id.collection": slug,
+      slug: slug,
     })
     .exec();
   if (!item) return;

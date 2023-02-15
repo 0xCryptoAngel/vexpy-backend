@@ -1,11 +1,10 @@
-import { aptosClient, tokenClient, MARKET_ADDRESS } from "../config/constants";
-import axios from "axios";
+import { MARKET_ADDRESS } from "../config/constants";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { offerItem } from "../db/schema/offerItem";
 import { collectionOffer } from "../db/schema/collectionOffer";
 import { collectionItem } from "../db/schema/collectionItem";
-import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
+import { fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 
 export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {

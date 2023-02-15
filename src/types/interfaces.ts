@@ -20,6 +20,12 @@ interface I_TOKEN_ID_DATA {
     name: string;
   };
 }
+
+interface I_TOKEN_SLUG {
+  property_version: string;
+  name: string;
+  slug: string;
+}
 interface I_UPDATE_REQUEST {
   type: T_REQUEST_TYPE;
   tokenId: I_TOKEN_ID_DATA;
@@ -30,4 +36,9 @@ interface I_OFFER_REQUEST {
   tokenId: I_TOKEN_ID_DATA;
   timestamp: number;
 }
-export type { I_UPDATE_REQUEST, I_TOKEN_ID_DATA, I_OFFER_REQUEST };
+export type {
+  I_UPDATE_REQUEST,
+  I_TOKEN_ID_DATA,
+  I_OFFER_REQUEST,
+  I_TOKEN_SLUG,
+};

@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express";
-import { I_UPDATE_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
+import {
+  I_UPDATE_REQUEST,
+  I_TOKEN_ID_DATA,
+  I_TOKEN_SLUG,
+} from "../types/interfaces";
 import {
   fetchListToken,
   handleMintRequest,
@@ -52,7 +56,7 @@ async function updateItem(req: Request, res: Response) {
 
 async function fetchNft(req: Request, res: Response) {
   try {
-    const body: I_TOKEN_ID_DATA = req.body;
+    const body: I_TOKEN_SLUG = req.body;
     let result = await handleNft(body);
     return res.status(200).send(result);
   } catch (err) {
