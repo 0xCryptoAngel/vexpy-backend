@@ -13,7 +13,6 @@ export const fetchListToken = async () => {
 };
 
 export const collectedNft = async (address: string) => {
-  console.log("address", address);
   const operation = `
   query CurrentTokens($owner_address: String, $offset: Int) {
     current_token_ownerships(
@@ -59,6 +58,8 @@ export const collectedNft = async (address: string) => {
     if (errors) {
       console.error(errors);
     }
+
+    console.log("data", data);
 
     await Promise.all(
       data.current_token_ownerships.map(async (token: any, i: number) => {
@@ -124,7 +125,7 @@ export const collectedNft = async (address: string) => {
                     );
                 }
               } catch (error: any) {
-                console.log(error.response.status);
+                console.log(error);
               }
             }
           }
@@ -173,12 +174,10 @@ export const collectedNft = async (address: string) => {
               );
           await newItem.save();
 
-          console.log("newItem", newItem);
           /******/
           let _collectionItem = await collectionItem.findOne({
             "key.token_data_id.collection": token.collection_name,
           });
-          console.log("_collectionItem", _collectionItem);
           if (_collectionItem == null) {
             let collecteditem = await collectionItem.create({
               key: {
@@ -279,7 +278,6 @@ export const updateListToken = async (token: any) => {
 };
 
 export const handleNft = async (tokenIdData: I_TOKEN_SLUG) => {
-  console.log("tokenIdData", tokenIdData);
   const item = await nftItem
     .findOne({
       "key.property_version": tokenIdData?.property_version,
@@ -287,8 +285,6 @@ export const handleNft = async (tokenIdData: I_TOKEN_SLUG) => {
       slug: tokenIdData?.slug,
     })
     .exec();
-
-  console.log("********", item);
   return item;
 };
 

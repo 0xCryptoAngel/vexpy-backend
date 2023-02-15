@@ -90,7 +90,6 @@ async function fetchCollection(req: Request, res: Response) {
     let slug: string = req.params.slug;
     let isForSale: any = req.query?.isForSale! || false;
     let result = await collection(decodeURIComponent(slug), isForSale);
-    // console.log("result", result);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);

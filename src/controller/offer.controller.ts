@@ -88,7 +88,6 @@ export const handleAcceptRequest = async (
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
       .exec();
-    console.log("_item", _item);
     let _isForSale = _item?.isForSale;
     if (!_item) return;
     _item.price = 0;
@@ -265,7 +264,6 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     if (errors) {
       console.error(errors);
     }
-    console.log("data", data);
     let newItem = await collectionOffer.create({
       key: {
         property_version: tokenIdData.property_version,
@@ -320,7 +318,6 @@ export const handleCollectAcceptRequest = async (
     if (errors) {
       console.error(errors);
     }
-    console.log("data", data.events[0]);
     let _item = await nftItem
       .findOne({
         "key.property_version": tokenIdData.property_version,
@@ -329,7 +326,6 @@ export const handleCollectAcceptRequest = async (
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
       .exec();
-    console.log("_item", _item);
     let _isForSale = _item?.isForSale;
     if (!_item) return;
     _item.price = 0;
