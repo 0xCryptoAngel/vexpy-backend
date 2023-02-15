@@ -59,8 +59,6 @@ export const collectedNft = async (address: string) => {
       console.error(errors);
     }
 
-    console.log("data", data);
-
     await Promise.all(
       data.current_token_ownerships.map(async (token: any, i: number) => {
         const item = await nftItem

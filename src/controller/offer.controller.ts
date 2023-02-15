@@ -81,8 +81,6 @@ export const handleAcceptRequest = async (
       console.error(errors);
     }
 
-    console.log("data.events[0].data.price", data.events[0]);
-
     let _item = await nftItem
       .findOne({
         "key.property_version": tokenIdData.property_version,
