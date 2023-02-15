@@ -80,6 +80,9 @@ export const handleAcceptRequest = async (
     if (errors) {
       console.error(errors);
     }
+
+    console.log("data.events[0].data.price", data.events[0]);
+
     let _item = await nftItem
       .findOne({
         "key.property_version": tokenIdData.property_version,
@@ -164,7 +167,7 @@ export const handleAcceptRequest = async (
   }
   let item = startFetchMakeEvent(
     MARKET_ADDRESS!,
-    `${MARKET_ADDRESS}::marketplace::SellCollectionOfferEvent`,
+    `${MARKET_ADDRESS}::marketplace::AcceptOfferEvent`,
     0
   );
   return item;
