@@ -66,7 +66,7 @@ async function fetchNft(req: Request, res: Response) {
 }
 async function fetchCollectionData(req: Request, res: Response) {
   try {
-    const body: I_TOKEN_ID_DATA = req.body;
+    const body: I_TOKEN_SLUG = req.body;
     let result = await handleCollectionNft(body);
     return res.status(200).send(result);
   } catch (err) {

@@ -20,6 +20,7 @@ const OfferItem: Schema = new Schema({
   isforitem: { type: Boolean, default: false },
   amount: { type: Number, default: 0 },
   leftAmount: { type: Number, default: 0 },
+  slug: { type: String, default: "" },
 });
 // Define schema of collection in mongoDB
 export const offerItem = model("OfferItem", OfferItem);

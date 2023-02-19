@@ -10,6 +10,8 @@ import {
   handleCollectCancelRequest,
   OfferByAddress,
   CollectionOfferByAddress,
+  receivedByAddress,
+  receivedItemByAddress,
 } from "../controller/offer.controller";
 import { I_OFFER_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
 async function updateOffer(req: Request, res: Response) {
@@ -74,7 +76,8 @@ async function fetchCollectionOffer(req: Request, res: Response) {
 async function fetchOfferByAddress(req: Request, res: Response) {
   try {
     let address: string = req.params.address;
-    let result = await OfferByAddress(address);
+    let owner: string = req.query?.owner as string;
+    let result = await OfferByAddress(address, owner);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
@@ -85,7 +88,28 @@ async function fetchOfferByAddress(req: Request, res: Response) {
 async function fetchCollectionOfferByAddress(req: Request, res: Response) {
   try {
     let address: string = req.params.address;
-    let result = await CollectionOfferByAddress(address);
+    let owner: string = req.query?.owner as string;
+    let result = await CollectionOfferByAddress(address, owner);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
+async function receivedCollectionOfferByAddress(req: Request, res: Response) {
+  try {
+    let owner: string = req.params.address;
+    let result = await receivedByAddress(owner);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
+async function receivedItemOfferByAddress(req: Request, res: Response) {
+  try {
+    let owner: string = req.params.address;
+    let result = await receivedItemByAddress(owner);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
@@ -100,6 +124,11 @@ module.exports = () => {
   offerRoute.put("/collection/fetch", fetchCollectionOffer);
   offerRoute.get("/:address", fetchOfferByAddress);
   offerRoute.get("/collection/:address", fetchCollectionOfferByAddress);
+  offerRoute.get(
+    "/collection/received/:address",
+    receivedCollectionOfferByAddress
+  );
+  offerRoute.get("/item/received/:address", receivedItemOfferByAddress);
 
   return offerRoute;
 };

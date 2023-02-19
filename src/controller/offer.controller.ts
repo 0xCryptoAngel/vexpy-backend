@@ -42,6 +42,10 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
       .padStart(64, "0")}`;
     newItem.duration = data.events[0].data.expiry_time;
     newItem.timestamp = data.events[0].data.timestamp;
+    newItem.slug = `${tokenIdData.token_data_id.collection?.replace(
+      /[^A-Z0-9]+/gi,
+      "-"
+    )}-${tokenIdData.token_data_id.creator.substring(61)}`;
     newItem.isforitem = true;
     await newItem.save();
     let item = await offerItem
@@ -229,23 +233,47 @@ export const fetchMakeOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
   return item;
 };
 
-export const OfferByAddress = async (_address: string) => {
-  let item = await offerItem
-    .find({
-      offerer: _address,
-    })
-    .sort({ price: -1 })
-    .exec();
+export const OfferByAddress = async (_address: string, _owner: string) => {
+  let item;
+  if (_owner) {
+    item = await offerItem
+      .find({
+        owner: _owner,
+      })
+      .sort({ price: -1 })
+      .exec();
+  } else {
+    item = await offerItem
+      .find({
+        offerer: _address,
+      })
+      .sort({ price: -1 })
+      .exec();
+  }
+
   return item;
 };
 
-export const CollectionOfferByAddress = async (_address: string) => {
-  let item = await collectionOffer
-    .find({
-      offerer: _address,
-    })
-    .sort({ price: -1 })
-    .exec();
+export const CollectionOfferByAddress = async (
+  _address: string,
+  _owner: string
+) => {
+  let item;
+  if (_owner) {
+    item = await collectionOffer
+      .find({
+        owner: _owner,
+      })
+      .sort({ price: -1 })
+      .exec();
+  } else {
+    item = await collectionOffer
+      .find({
+        offerer: _address,
+      })
+      .sort({ price: -1 })
+      .exec();
+  }
   return item;
 };
 
@@ -282,6 +310,10 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     newItem.duration = data.events[0].data.expiry_time;
     newItem.timestamp = data.events[0].data.created_at;
     newItem.amount = data.events[0].data.amount;
+    newItem.slug = `${tokenIdData.token_data_id.collection?.replace(
+      /[^A-Z0-9]+/gi,
+      "-"
+    )}-${tokenIdData.token_data_id.creator.substring(61)}`;
     newItem.isforitem = false;
     await newItem.save();
     // let item = await offerItem
@@ -477,4 +509,45 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
     .sort({ price: -1 })
     .exec();
   return item;
+};
+
+export const receivedByAddress = async (_owner: string) => {
+  let ownedNfts = await nftItem
+    .find({
+      owner: _owner,
+    })
+    .sort({ price: -1 })
+    .exec();
+  const items = await Promise.all(
+    ownedNfts.map(async (token: any, i: number) => {
+      let item = await collectionOffer
+        .find({
+          slug: token.slug,
+        })
+        .sort({ price: -1 })
+        .exec();
+      return item;
+    })
+  );
+  return items;
+};
+export const receivedItemByAddress = async (_owner: string) => {
+  let ownedNfts = await nftItem
+    .find({
+      owner: _owner,
+    })
+    .sort({ price: -1 })
+    .exec();
+  const items = await Promise.all(
+    ownedNfts.map(async (token: any, i: number) => {
+      let item = await offerItem
+        .find({
+          slug: token.slug,
+        })
+        .sort({ price: -1 })
+        .exec();
+      return item;
+    })
+  );
+  return items;
 };

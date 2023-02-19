@@ -20,6 +20,7 @@ const CollectionOffer: Schema = new Schema({
   owner: { type: String, default: "" },
   offerer: { type: String, default: "" },
   isforitem: { type: Boolean, default: false },
+  slug: { type: String, default: "" },
 });
 // Define schema of collection in mongoDB
 export const collectionOffer = model("CollectionOffer", CollectionOffer);
