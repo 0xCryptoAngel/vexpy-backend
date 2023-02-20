@@ -287,13 +287,24 @@ export const handleNft = async (tokenIdData: I_TOKEN_SLUG) => {
 };
 
 export const handleCollectionNft = async (tokenIdData: I_TOKEN_SLUG) => {
-  const item = await nftItem
-    .find({
-      "key.property_version": tokenIdData?.property_version,
-      "key.token_data_id.name": tokenIdData?.name,
-      slug: tokenIdData?.slug,
-    })
-    .exec();
+  let item;
+  if (tokenIdData?.name?.length > 0) {
+    item = await nftItem
+      .find({
+        "key.property_version": tokenIdData?.property_version,
+        "key.token_data_id.name": tokenIdData?.name,
+        slug: tokenIdData?.slug,
+      })
+      .exec();
+  } else {
+    item = await nftItem
+      .find({
+        "key.property_version": tokenIdData?.property_version,
+        slug: tokenIdData?.slug,
+      })
+      .exec();
+  }
+
   return item[0];
 };
 
