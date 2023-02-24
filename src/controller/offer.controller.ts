@@ -510,6 +510,15 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
     .exec();
   return item;
 };
+export const fetchCollectOfferBySlug = async (_slug: string) => {
+  let item = await collectionOffer
+    .find({
+      slug: _slug,
+    })
+    .sort({ price: -1 })
+    .exec();
+  return item;
+};
 
 export const receivedByAddress = async (_owner: string) => {
   let ownedNfts = await nftItem
