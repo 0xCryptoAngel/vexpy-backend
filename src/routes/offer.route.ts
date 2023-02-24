@@ -12,6 +12,7 @@ import {
   CollectionOfferByAddress,
   receivedByAddress,
   receivedItemByAddress,
+  fetchCollectOfferBySlug,
 } from "../controller/offer.controller";
 import { I_OFFER_REQUEST, I_TOKEN_ID_DATA } from "../types/interfaces";
 async function updateOffer(req: Request, res: Response) {
@@ -62,10 +63,21 @@ async function fetchOffer(req: Request, res: Response) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
-async function fetchCollectionOffer(req: Request, res: Response) {
+async function fetchCollectionOfferByKey(req: Request, res: Response) {
   try {
     const body: I_TOKEN_ID_DATA = req.body;
     let result: any = await fetchCollectOffer(body);
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
+
+async function fetchCollectionOfferBySlug(req: Request, res: Response) {
+  try {
+    const body: string = req.body.slug;
+    let result: any = await fetchCollectOfferBySlug(body);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
@@ -121,7 +133,8 @@ module.exports = () => {
   const offerRoute = express.Router();
   offerRoute.put("/update", updateOffer);
   offerRoute.put("/fetch", fetchOffer);
-  offerRoute.put("/collection/fetch", fetchCollectionOffer);
+  offerRoute.put("/collection/fetch", fetchCollectionOfferByKey);
+  offerRoute.put("/collection/offer", fetchCollectionOfferBySlug);
   offerRoute.get("/:address", fetchOfferByAddress);
   offerRoute.get("/collection/:address", fetchCollectionOfferByAddress);
   offerRoute.get(
