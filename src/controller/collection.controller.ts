@@ -1,5 +1,6 @@
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { collectionItem } from "../db/schema/collectionItem";
+import { nftItem } from "../db/schema/nftItem";
 export const updateItem = async (
   slug: string,
   amount: string,
@@ -18,6 +19,22 @@ export const updateItem = async (
 
 export const fetchItem = async (slug: string) => {
   let item = await collectionItem
+    .findOne({
+      slug: slug,
+    })
+    .exec();
+  if (!item) return;
+  return item;
+};
+
+export const fetchCollection = async () => {
+  let item = await collectionItem.find({}).sort({ volume: -1 }).exec();
+  if (!item) return;
+  return item;
+};
+
+export const fetchCollectionData = async (slug: string) => {
+  let item = await nftItem
     .findOne({
       slug: slug,
     })
