@@ -18,6 +18,10 @@ const CollectionItem: Schema = new Schema({
   owner: { type: Number, default: 0 },
   floor: { type: Number, default: 0 },
   slug: { type: String, default: "" },
+  name: { type: String, default: "" },
+  description: { type: String, default: "" },
+  metadata_uri: { type: String, default: "" },
+  image_uri: { type: String, default: "" },
 });
 // Define schema of collection in mongoDB
 export const collectionItem = model("CollectionItem", CollectionItem);

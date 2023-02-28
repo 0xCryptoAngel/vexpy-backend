@@ -21,7 +21,6 @@ async function updateCollection(req: Request, res: Response) {
 async function fetchParams(req: Request, res: Response) {
   try {
     let { slug } = req.params;
-    console.log("sdfasd");
     let result = await fetchItem(slug);
     return res.status(200).send(result);
   } catch (err) {
