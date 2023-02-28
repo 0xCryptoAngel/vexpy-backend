@@ -105,5 +105,6 @@ module.exports = () => {
   nftRoute.put("/collection/nft", fetchCollectionData);
   nftRoute.get("/collected/:address", fetchCollectedNft);
   nftRoute.get("/collection/:slug", fetchCollection);
+
   return nftRoute;
 };

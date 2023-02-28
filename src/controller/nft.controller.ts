@@ -58,7 +58,6 @@ export const collectedNft = async (address: string) => {
     if (errors) {
       console.error(errors);
     }
-
     await Promise.all(
       data.current_token_ownerships.map(async (token: any, i: number) => {
         const item = await nftItem
@@ -176,6 +175,7 @@ export const collectedNft = async (address: string) => {
           let _collectionItem = await collectionItem.findOne({
             "key.token_data_id.collection": token.collection_name,
           });
+
           if (_collectionItem == null) {
             let collecteditem = await collectionItem.create({
               key: {
@@ -200,6 +200,21 @@ export const collectedNft = async (address: string) => {
               /[^A-Z0-9]+/gi,
               "-"
             )}-${token.creator_address.substring(61)}`;
+
+            collecteditem.name = token.current_collection_data.collection_name;
+            collecteditem.description =
+              token.current_collection_data.description;
+            collecteditem.metadata_uri =
+              token.current_collection_data.metadata_uri
+                .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                .replace(
+                  "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                )
+                .replace(
+                  "https://ipfs.io/ipfs/",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                );
             await collecteditem.save();
             /******/
           } else {
@@ -216,6 +231,22 @@ export const collectedNft = async (address: string) => {
               /[^A-Z0-9]+/gi,
               "-"
             )}-${token.creator_address.substring(61)}`;
+
+            _collectionItem.name =
+              token.current_collection_data.collection_name;
+            _collectionItem.description =
+              token.current_collection_data.description;
+            _collectionItem.metadata_uri =
+              token.current_collection_data.metadata_uri
+                .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                .replace(
+                  "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                )
+                .replace(
+                  "https://ipfs.io/ipfs/",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                );
             await _collectionItem.save();
             /******/
           }
