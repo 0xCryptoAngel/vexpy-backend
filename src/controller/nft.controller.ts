@@ -5,6 +5,10 @@ import { nftItem } from "../db/schema/nftItem";
 import { collectionItem } from "../db/schema/collectionItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
+
+const { CF_IMAGES_ACCOUNT_ID, CF_IMAGES_API_KEY, CF_IMAGES_ACCOUNT_HASH } =
+  process.env;
+import { upload } from "../utils/upload";
 export const fetchListToken = async () => {
   const result = await nftItem.find({
     isForSale: true,
@@ -68,12 +72,14 @@ export const collectedNft = async (address: string) => {
             "key.token_data_id.name": token.name,
           })
           .exec();
+        console.log("item", item);
         if (item == null) {
+          console.log("***********");
           let imageUri: string;
           if (
             token.current_token_data.metadata_uri
               ?.slice(-5)
-              .includes(".png" || ".jpeg" || ".jpg")
+              .includes(".png" || ".jpeg" || ".jpg" || ".webp")
           ) {
             imageUri = token.current_token_data.metadata_uri;
           } else {
@@ -136,7 +142,8 @@ export const collectedNft = async (address: string) => {
               },
             },
           });
-          newItem.image_uri = imageUri!;
+          newItem.image_uri =
+            imageUri! != undefined ? await upload(imageUri!) : "";
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.owner = token.owner_address;
