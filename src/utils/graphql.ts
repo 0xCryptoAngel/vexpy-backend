@@ -38,3 +38,15 @@ export const fetchListEvent = (
     offset: offset,
   });
 };
+
+export const convertURL = (_url: string) => {
+  let arrayLength: string[];
+  let image_Uri: string;
+  arrayLength = _url.split("/ipfs/");
+  if (arrayLength.length > 1) {
+    image_Uri = `https://cloudflare-ipfs.com/ipfs/${arrayLength.pop()}`;
+  } else {
+    image_Uri = _url;
+  }
+  return image_Uri;
+};
