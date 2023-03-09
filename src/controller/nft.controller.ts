@@ -73,7 +73,6 @@ export const collectedNft = async (address: string) => {
             "key.token_data_id.name": token.name,
           })
           .exec();
-        console.log("item", item);
         if (item == null) {
           console.log("***********");
           let imageUri: string;
@@ -231,16 +230,31 @@ export const collectedNft = async (address: string) => {
                 );
 
             if (
-              isImageUrl(convertURL(token.current_collection_data.metadata_uri))
+              isImageUrl(
+                convertURL(token.current_collection_data.metadata_uri).replace(
+                  "ipfs://",
+                  "https://cloudflare-ipfs.com/ipfs/"
+                )
+              )
             ) {
               collecteditem.image_uri = await upload(
-                convertURL(token.current_collection_data.metadata_uri)
+                convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )
+                )
               );
             } else {
               let test: any;
               try {
                 test = await axios.get(
-                  convertURL(token.current_collection_data.metadata_uri),
+                  convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  ),
                   {
                     headers: { "Accept-Encoding": "gzip,deflate,compress" },
                   }
@@ -250,12 +264,22 @@ export const collectedNft = async (address: string) => {
               }
               if (typeof test.data == "string") {
                 collecteditem.image_uri = await upload(
-                  convertURL(token.current_collection_data.metadata_uri)
+                  convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  )
                 );
               }
               if (typeof test.data == "object") {
                 collecteditem.image_uri = await upload(
-                  convertURL(test.data?.image)
+                  convertURL(
+                    test.data?.image.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  )
                 );
               }
             }
@@ -291,18 +315,38 @@ export const collectedNft = async (address: string) => {
                   "https://ipfs.io/ipfs/",
                   "https://cloudflare-ipfs.com/ipfs/"
                 );
-
+            console.log(
+              "convertURL(token.current_collection_data.metadata_uri)",
+              token.current_collection_data.metadata_uri
+            );
             if (
-              isImageUrl(convertURL(token.current_collection_data.metadata_uri))
+              isImageUrl(
+                convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )
+                )
+              )
             ) {
               _collectionItem.image_uri = await upload(
-                convertURL(token.current_collection_data.metadata_uri)
+                convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )
+                )
               );
             } else {
               let test: any;
               try {
                 test = await axios.get(
-                  convertURL(token.current_collection_data.metadata_uri),
+                  convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  ),
                   {
                     headers: { "Accept-Encoding": "gzip,deflate,compress" },
                   }
@@ -312,12 +356,22 @@ export const collectedNft = async (address: string) => {
               }
               if (typeof test.data == "string") {
                 _collectionItem.image_uri = await upload(
-                  convertURL(token.current_collection_data.metadata_uri)
+                  convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  )
                 );
               }
               if (typeof test.data == "object") {
                 _collectionItem.image_uri = await upload(
-                  convertURL(test.data?.image)
+                  convertURL(
+                    test.data?.image.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  )
                 );
               }
             }
