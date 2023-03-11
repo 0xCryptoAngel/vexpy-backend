@@ -22,6 +22,7 @@ const CollectionItem: Schema = new Schema({
   description: { type: String, default: "" },
   metadata_uri: { type: String, default: "" },
   image_uri: { type: String, default: "" },
+  lastSoldAt: { type: Date, default: new Date(0) },
 });
 // Define schema of collection in mongoDB
 export const collectionItem = model("CollectionItem", CollectionItem);

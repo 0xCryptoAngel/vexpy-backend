@@ -612,6 +612,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     collecteditem.listed = listedItem.length;
     collecteditem.floor = listedItem[0]?.price;
     collecteditem.volume += parseFloat(token.data.price);
+    collecteditem.lastSoldAt = new Date();
 
     let itemAmount = await nftItem
       .find({

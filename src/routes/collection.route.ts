@@ -30,7 +30,8 @@ async function fetchParams(req: Request, res: Response) {
 
 async function fetchTopCollection(req: Request, res: Response) {
   try {
-    let result = await fetchCollection();
+    let period: any = req.query?.period;
+    let result = await fetchCollection(parseInt(period));
     return res.status(200).send(result);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });

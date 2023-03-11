@@ -121,6 +121,7 @@ export const handleAcceptRequest = async (
       collecteditem.listed = listedItem.length;
       collecteditem.floor = listedItem[0]?.price;
       collecteditem.volume += parseFloat(data.events[0].data.price);
+      collecteditem.lastSoldAt = new Date();
       let itemAmount = await nftItem
         .find({
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
@@ -140,6 +141,7 @@ export const handleAcceptRequest = async (
         .exec();
       if (!collecteditem) return;
       collecteditem.volume += parseFloat(data.events[0].data.price);
+      collecteditem.lastSoldAt = new Date();
       let itemAmount = await nftItem
         .find({
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
@@ -387,6 +389,7 @@ export const handleCollectAcceptRequest = async (
       collecteditem.listed = listedItem.length;
       collecteditem.floor = listedItem[0]?.price;
       collecteditem.volume += parseFloat(data.events[0].data.price_per_item);
+      collecteditem.lastSoldAt = new Date();
       let itemAmount = await nftItem
         .find({
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
@@ -406,6 +409,7 @@ export const handleCollectAcceptRequest = async (
         .exec();
       if (!collecteditem) return;
       collecteditem.volume += parseFloat(data.events[0].data.price_per_item);
+      collecteditem.lastSoldAt = new Date();
       let itemAmount = await nftItem
         .find({
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,

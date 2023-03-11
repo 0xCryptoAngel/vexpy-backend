@@ -27,8 +27,16 @@ export const fetchItem = async (slug: string) => {
   return item;
 };
 
-export const fetchCollection = async () => {
-  let item = await collectionItem.find({}).sort({ volume: -1 }).exec();
+export const fetchCollection = async (_period: number) => {
+  console.log("_period", _period);
+  let item = await collectionItem
+    .find({
+      lastSoldAt: {
+        $gte: new Date(new Date().getTime() - 3600 * _period * 1000),
+      },
+    })
+    .sort({ volume: -1 })
+    .exec();
   if (!item) return;
   return item;
 };
