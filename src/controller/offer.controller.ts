@@ -556,6 +556,7 @@ export const receivedItemByAddress = async (_owner: string) => {
       let item = await offerItem
         .find({
           slug: token.slug,
+          "key.token_data_id.name": token?.key?.token_data_id.name,
         })
         .sort({ price: -1 })
         .exec();
