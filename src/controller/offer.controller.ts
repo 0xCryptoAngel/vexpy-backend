@@ -272,6 +272,9 @@ export const CollectionOfferByAddress = async (
     item = await collectionOffer
       .find({
         offerer: _address,
+        leftAmount: {
+          $gte: 1,
+        },
       })
       .sort({ price: -1 })
       .exec();
@@ -312,6 +315,7 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     newItem.duration = data.events[0].data.expiry_time;
     newItem.timestamp = data.events[0].data.created_at;
     newItem.amount = data.events[0].data.amount;
+    newItem.leftAmount = data.events[0].data.amount;
     newItem.slug = `${tokenIdData.token_data_id.collection?.replace(
       /[^A-Z0-9]+/gi,
       "-"
@@ -349,7 +353,6 @@ export const handleCollectAcceptRequest = async (
       type,
       offset
     );
-
     if (errors) {
       console.error(errors);
     }
@@ -429,10 +432,11 @@ export const handleCollectAcceptRequest = async (
           name: "",
         },
       },
+      price: data.events[0].data.price_per_item,
     });
     if (!_collectionOffer) return;
-    if (_collectionOffer.amount > 0) {
-      _collectionOffer.leftAmount = _collectionOffer.leftAmount + 1;
+    if (_collectionOffer.leftAmount > 0) {
+      _collectionOffer.leftAmount = _collectionOffer.leftAmount - 1;
     }
     await _collectionOffer.save();
     // await offerItem.deleteOne({
@@ -509,9 +513,13 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
       "key.token_data_id.collection": tokenIdData.token_data_id.collection,
       "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       "key.token_data_id.name": tokenIdData.token_data_id.name,
+      leftAmount: {
+        $gte: 1,
+      },
     })
     .sort({ price: -1 })
     .exec();
+  console.log("item", item);
   return item;
 };
 export const fetchCollectOfferBySlug = async (_slug: string) => {
@@ -536,10 +544,15 @@ export const receivedByAddress = async (_owner: string) => {
       let item = await collectionOffer
         .find({
           slug: token.slug,
+          leftAmount: {
+            $gte: 1,
+          },
         })
         .sort({ price: -1 })
         .exec();
-      return item;
+      let _item = item?.map((item) => Object.assign(item, { key: token.key }));
+
+      return [..._item];
     })
   );
   return items;
