@@ -28,7 +28,6 @@ export const fetchItem = async (slug: string) => {
 };
 
 export const fetchCollection = async (_period: number) => {
-  console.log("_period", _period);
   let item = await collectionItem
     .find({
       lastSoldAt: {
