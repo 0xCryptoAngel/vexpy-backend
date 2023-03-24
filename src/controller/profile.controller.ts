@@ -15,7 +15,7 @@ export const updateProfile = async (_address: string, payload: I_PROFILE) => {
     return _profile;
   } else {
     const profile = await profileItem.create({ address: _address });
-    profile.name = _address.slice(-10);
+    profile.name = payload.name;
     profile.bio = payload.bio;
     profile.email = payload.email;
     profile.website = payload.website;
@@ -30,5 +30,10 @@ export const updateProfile = async (_address: string, payload: I_PROFILE) => {
 
 export const fetchProfile = async (_address: string) => {
   const _profile = await profileItem.findOne({ address: _address });
-  return _profile;
+  if (_profile) {
+    return _profile;
+  } else {
+    const profile = await profileItem.create({ address: _address });
+    return profile;
+  }
 };
