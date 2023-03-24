@@ -1,7 +1,10 @@
 import { Model, Schema, model } from "mongoose";
 const ProfileItem: Schema = new Schema({
   address: { type: String, default: "" },
-  name: { type: String, default: "" },
+  name: {
+    type: String,
+    default: Math.ceil(Math.random() * 1000000).toString(),
+  },
   bio: { type: String, default: "" },
   email: { type: String, default: "" },
   website: { type: String, default: "" },
