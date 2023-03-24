@@ -65,6 +65,7 @@ export const handleMakeRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   );
   return item;
 };
+
 export const handleAcceptRequest = async (
   tokenIdData: I_TOKEN_ID_DATA,
   _timestamp: number
@@ -339,6 +340,7 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
   );
   return item;
 };
+
 export const handleCollectAcceptRequest = async (
   tokenIdData: I_TOKEN_ID_DATA
 ) => {
@@ -522,6 +524,7 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
   console.log("item", item);
   return item;
 };
+
 export const fetchCollectOfferBySlug = async (_slug: string) => {
   let item = await collectionOffer
     .find({
@@ -557,6 +560,7 @@ export const receivedByAddress = async (_owner: string) => {
   );
   return items;
 };
+
 export const receivedItemByAddress = async (_owner: string) => {
   let ownedNfts = await nftItem
     .find({
