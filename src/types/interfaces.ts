@@ -36,9 +36,23 @@ interface I_OFFER_REQUEST {
   tokenId: I_TOKEN_ID_DATA;
   timestamp: number;
 }
+
+interface I_PROFILE {
+  address: string;
+  name: string;
+  bio: string;
+  email: string;
+  website: string;
+  twitter: string;
+  instagram: string;
+  coverImage: string;
+  avatarImage: string;
+}
+
 export type {
   I_UPDATE_REQUEST,
   I_TOKEN_ID_DATA,
   I_OFFER_REQUEST,
   I_TOKEN_SLUG,
+  I_PROFILE,
 };
