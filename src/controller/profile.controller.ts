@@ -1,5 +1,7 @@
 import { profileItem } from "../db/schema/profileItem";
 import { I_PROFILE } from "../types/interfaces";
+const Identicon = require("identicon.js");
+
 export const updateProfile = async (_address: string, payload: I_PROFILE) => {
   const _profile = await profileItem.findOne({ address: _address });
   if (_profile) {
@@ -34,6 +36,11 @@ export const fetchProfile = async (_address: string) => {
     return _profile;
   } else {
     const profile = await profileItem.create({ address: _address });
+    profile.avatarImage = `data:image/svg+xml;base64,${new Identicon(_address, {
+      size: 420, // 420px square
+      format: "svg", // use SVG instead of PNG
+    }).toString()}`;
+    profile.save();
     return profile;
   }
 };
