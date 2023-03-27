@@ -33,3 +33,10 @@ export const fetchProfile = async (_address: string) => {
     return profile;
   }
 };
+
+export const fetchUser = async (_name: string) => {
+  console.log("_name", _name);
+  const _profile = await profileItem.findOne({ name: _name });
+  if (_profile) return true;
+  else return false;
+};

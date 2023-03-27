@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express";
-import { fetchProfile, updateProfile } from "../controller/profile.controller";
+import {
+  fetchProfile,
+  fetchUser,
+  updateProfile,
+} from "../controller/profile.controller";
 
 async function updateUsers(req: Request, res: Response) {
   try {
@@ -14,8 +18,15 @@ async function updateUsers(req: Request, res: Response) {
 async function fetchUsers(req: Request, res: Response) {
   try {
     const address: string = req.query.address as string;
-    let data = await fetchProfile(address);
-    return res.status(200).send(data);
+    const name: string = req.query.name as string;
+    if (address) {
+      let data = await fetchProfile(address);
+      return res.status(200).send(data);
+    }
+    if (name) {
+      let data = await fetchUser(name);
+      return res.status(200).send(data);
+    }
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
   }
