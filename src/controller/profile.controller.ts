@@ -40,3 +40,8 @@ export const fetchUser = async (_name: string) => {
   if (_profile) return true;
   else return false;
 };
+
+export const allUsers = async () => {
+  const _profile = await profileItem.find({});
+  return _profile;
+};
