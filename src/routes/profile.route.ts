@@ -4,6 +4,7 @@ import {
   fetchUser,
   updateProfile,
   allUsers,
+  sendVerification,
 } from "../controller/profile.controller";
 
 async function updateUsers(req: Request, res: Response) {
@@ -42,11 +43,12 @@ async function fetchUsers(req: Request, res: Response) {
   }
 }
 
-async function emailVerify(req: Request, res: Response) {
+async function emailSend(req: Request, res: Response) {
   try {
     const email: string = req.query.email as string;
-    console.log("address", email);
-    return res.status(200).send({ value: "Ok" });
+    const address: string = req.query.address as string;
+    let data = await sendVerification(email, address);
+    return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
   }
@@ -57,6 +59,6 @@ module.exports = () => {
   profileRoute.put("/user", updateUsers);
   profileRoute.get("/user", fetchUserbyId);
   profileRoute.get("/users", fetchUsers);
-  profileRoute.get("/verify", emailVerify);
+  profileRoute.get("/email", emailSend);
   return profileRoute;
 };
