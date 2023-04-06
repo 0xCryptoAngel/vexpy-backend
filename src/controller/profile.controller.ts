@@ -16,6 +16,7 @@ export const updateProfile = async (_address: string, payload: I_PROFILE) => {
   _profile.instagram = payload.instagram;
   _profile.avatarImage = payload.avatarImage;
   _profile.coverImage = payload.coverImage;
+  _profile.isVerifeid = payload.isVerifeid;
   _profile.save();
   return _profile;
 };
@@ -66,8 +67,6 @@ export const sendVerification = async (email: string, address: string) => {
             <div>Vexpy team.</div>
           </div>`, // html body
   };
-  console.log("mailOptions", mailOptions);
-  // send mail with defined transport object
   let info = await transporter.sendMail(mailOptions);
   return { value: "ok" };
 };
