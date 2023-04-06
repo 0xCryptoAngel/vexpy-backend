@@ -47,6 +47,8 @@ interface I_PROFILE {
   instagram: string;
   coverImage: string;
   avatarImage: string;
+  isVerifeid: boolean;
+  code: string;
 }
 
 export type {

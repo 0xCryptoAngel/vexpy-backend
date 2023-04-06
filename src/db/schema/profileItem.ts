@@ -12,6 +12,8 @@ const ProfileItem: Schema = new Schema({
   instagram: { type: String, default: "" },
   coverImage: { type: String, default: "" },
   avatarImage: { type: String, default: "" },
+  isVerifeid: { type: Boolean, default: false },
+  code: { type: String, default: "" },
 });
 // Define schema of collection in mongoDB
 export const profileItem = model("profileItem", ProfileItem);

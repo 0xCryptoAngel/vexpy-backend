@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import dbConfig from "./src/db/dbConfig";
 const cors = require("cors");
 const app = express();
-
 ///enabled CORS
 app.use(cors());
 
