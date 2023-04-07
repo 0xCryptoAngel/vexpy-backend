@@ -59,10 +59,11 @@ export const sendVerification = async (email: string, address: string) => {
     from: process.env.EMAIL_FROM, // sender address
     to: email, // list of receivers
     subject: "Verify your email for Vexpy", // Subject line
-    text: "Hello. Follow this link to verify your email address. If you didn’t ask to verify this address, you can ignore this email. Thanks, Vexpy team.", // plain text body
+    text: "Hello. Your verification code is : Thanks, Vexpy team.", // plain text body
     html: `<div>
             <div>Hello.</div>
             <br />
+            <div>Your verification code is :</div>
             <div>${randomNumber}</div>
             <div>Vexpy team.</div>
           </div>`, // html body
