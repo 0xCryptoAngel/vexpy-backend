@@ -3,6 +3,7 @@ import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { offerItem } from "../db/schema/offerItem";
 import { collectionOffer } from "../db/schema/collectionOffer";
+import { profileItem } from "../db/schema/profileItem";
 import { collectionItem } from "../db/schema/collectionItem";
 import { fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
@@ -526,12 +527,26 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const fetchCollectOfferBySlug = async (_slug: string) => {
+  console.log("_slug", _slug);
   let item = await collectionOffer
-    .find({
-      slug: _slug,
-    })
+    .aggregate([
+      {
+        $lookup: {
+          from: "profileitems", //other table name
+          localField: "offerer", //name of car table field
+          foreignField: "address", //name of cardetails table field
+          as: "profile", //alias for cardetails table
+        },
+      },
+      {
+        $match: {
+          slug: _slug,
+        },
+      },
+    ])
     .sort({ price: -1 })
     .exec();
+  console.log("item", item.length);
   return item;
 };
 
