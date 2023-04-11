@@ -17,7 +17,10 @@ export const fetchListToken = async () => {
   return result;
 };
 
-export const collectedNft = async (address: string) => {
+export const collectedNft = async (
+  address: string,
+  slug: string | undefined
+) => {
   const operation = `
   query CurrentTokens($owner_address: String, $offset: Int) {
     current_token_ownerships(
@@ -385,9 +388,27 @@ export const collectedNft = async (address: string) => {
 
   await startFetchCurrentTokens(address, 0);
 
-  const result = await nftItem.find({
+  let query: any = {
     owner: address,
-  });
+  };
+
+  if (slug) {
+    query.slug = slug;
+  }
+
+  const result = await nftItem.aggregate([
+    {
+      $lookup: {
+        from: "collectionitems", //other table name
+        localField: "slug", //name of car table field
+        foreignField: "slug", //name of cardetails table field
+        as: "collection", //alias for cardetails table
+      },
+    },
+    {
+      $match: query,
+    },
+  ]);
   return result;
 };
 

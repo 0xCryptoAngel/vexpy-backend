@@ -75,10 +75,11 @@ async function fetchCollectionData(req: Request, res: Response) {
   }
 }
 
-async function fetchCollectedNft(req: Request, res: Response) {
+async function fetchCollectedNftByAddress(req: Request, res: Response) {
   try {
     let address: string = req.params.address;
-    let result = await collectedNft(address);
+    let slug = req.query.slug as string;
+    let result = await collectedNft(address, slug);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
@@ -103,7 +104,7 @@ module.exports = () => {
   nftRoute.put("/update", updateItem);
   nftRoute.put("/nft", fetchNft);
   nftRoute.put("/collection/nft", fetchCollectionData);
-  nftRoute.get("/collected/:address", fetchCollectedNft);
+  nftRoute.get("/collected/:address", fetchCollectedNftByAddress);
   nftRoute.get("/collection/:slug", fetchCollection);
 
   return nftRoute;

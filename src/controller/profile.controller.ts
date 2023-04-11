@@ -7,7 +7,6 @@ export const updateProfile = async (_address: string, payload: I_PROFILE) => {
   console.log("asdasdasda", payload);
   const _profile = await profileItem.findOne({ address: _address });
   if (!_profile) return;
-  console.log("esdsd");
   _profile.name = payload.name;
   _profile.bio = payload.bio;
   _profile.email = payload.email;
@@ -37,7 +36,6 @@ export const fetchProfile = async (_address: string) => {
 };
 
 export const fetchUser = async (_name: string) => {
-  console.log("_name", _name);
   const _profile = await profileItem.findOne({ name: _name });
   if (_profile) return true;
   else return false;
