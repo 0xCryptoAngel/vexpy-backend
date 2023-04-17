@@ -750,37 +750,41 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const metaDatabySlug = async (slug: string) => {
-  let result: any;
-
-  result = await nftItem.find({
+  let collectionMetaData = await metaData.findOne({
     slug: slug,
   });
-  let collectionType: { [key: string]: any } = {};
 
-  result[0]["metadata"]?.map(
-    (_item: { trait_type: string; value: string }, j: number) => {
-      console.log("_item", (collectionType[_item.trait_type] = []));
-    }
-  );
-  result.map((item: any, i: number) => {
-    item["metadata"]?.map(
+  if (collectionMetaData) return collectionMetaData;
+  else {
+    let result: any = await nftItem.find({
+      slug: slug,
+    });
+    let collectionType: { [key: string]: any } = {};
+
+    result[0]["metadata"]?.map(
       (_item: { trait_type: string; value: string }, j: number) => {
-        if (
-          !collectionType[_item.trait_type].includes(_item.value) &&
-          _item.value != "None"
-        ) {
-          collectionType[_item.trait_type].push(_item.value);
-        }
+        console.log("_item", (collectionType[_item.trait_type] = []));
       }
     );
-  });
-  console.log("collectionType", collectionType);
-  let _test = await metaData.create({
-    slug: slug,
-  });
-  _test.metadata = collectionType;
-  _test.save();
-  return result;
+    result.map((item: any, i: number) => {
+      item["metadata"]?.map(
+        (_item: { trait_type: string; value: string }, j: number) => {
+          if (
+            !collectionType[_item.trait_type].includes(_item.value) &&
+            _item.value != "None"
+          ) {
+            collectionType[_item.trait_type].push(_item.value);
+          }
+        }
+      );
+    });
+    let _test = await metaData.create({
+      slug: slug,
+    });
+    _test.metadata = collectionType;
+    _test.save();
+    return result;
+  }
 };
 
 export const collectionMetabySlug = async (slug: string) => {

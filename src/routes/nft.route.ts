@@ -110,6 +110,17 @@ async function fetchCollectionMetaData(req: Request, res: Response) {
   }
 }
 
+async function updateCollectionMetaData(req: Request, res: Response) {
+  try {
+    let slug: string = req.params.slug;
+    let result = await metaDatabySlug(decodeURIComponent(slug));
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
+
 module.exports = () => {
   const nftRoute = express.Router();
   nftRoute.get("/fetch", fetchUsers);
@@ -119,6 +130,7 @@ module.exports = () => {
   nftRoute.get("/collected/:address", fetchCollectedNftByAddress);
   nftRoute.get("/collection/:slug", fetchCollection);
   nftRoute.get("/metadata/:slug", fetchCollectionMetaData);
+  nftRoute.get("/updatemetadata/:slug", updateCollectionMetaData);
 
   return nftRoute;
 };
