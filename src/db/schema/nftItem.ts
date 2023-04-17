@@ -24,6 +24,7 @@ const NftItem: Schema = new Schema({
     type: String,
     default: "",
   },
+  royalty: { type: Number, default: 0 },
   collection_name: { type: String, default: "" },
   collection_description: { type: String, default: "" },
   collection_metadata_uri: { type: String, default: "" },

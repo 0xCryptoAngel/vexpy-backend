@@ -6,10 +6,10 @@ import { collectionItem } from "../db/schema/collectionItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 import { convertURL } from "../utils/graphql";
-
 const { CF_IMAGES_ACCOUNT_ID, CF_IMAGES_API_KEY, CF_IMAGES_ACCOUNT_HASH } =
   process.env;
 import { upload } from "../utils/upload";
+import { metaData } from "../db/schema/metaData";
 export const fetchListToken = async () => {
   const result = await nftItem.find({
     isForSale: true,
@@ -66,19 +66,27 @@ export const collectedNft = async (
     if (errors) {
       console.error(errors);
     }
-    await Promise.all(
+    const newNfts = await Promise.all(
       data.current_token_ownerships.map(async (token: any, i: number) => {
-        const item = await nftItem
-          .findOne({
-            "key.property_version": token.property_version,
-            "key.token_data_id.collection": token.collection_name,
-            "key.token_data_id.creator": token.creator_address,
-            "key.token_data_id.name": token.name,
-          })
-          .exec();
-        if (item == null) {
-          console.log("***********");
+        const item = await nftItem.findOne({
+          "key.property_version": token.property_version,
+          "key.token_data_id.collection": token.collection_name,
+          "key.token_data_id.creator": token.creator_address,
+          "key.token_data_id.name": token.name,
+        });
+        if (!item) {
+          return token;
+        }
+      })
+    );
+    console.log("newNfts", newNfts);
+    const sortedNewNfts = newNfts.filter((item) => item);
+    console.log("sortedNewNfts", sortedNewNfts);
+    if (sortedNewNfts.length > 0) {
+      await Promise.all(
+        sortedNewNfts?.map(async (token: any, i: number) => {
           let imageUri: string;
+          let _metaData: any[] = [];
           if (
             token.current_token_data.metadata_uri
               ?.slice(-5)
@@ -115,6 +123,12 @@ export const collectedNft = async (
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
+
+                  if (test.data?.attributes?.length > 0) {
+                    _metaData = test.data?.attributes;
+                  } else {
+                    _metaData = test.data?.properties;
+                  }
                 }
 
                 //In this case, URL is image
@@ -129,6 +143,19 @@ export const collectedNft = async (
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
+                  const fixedArray = Object.entries(
+                    token.current_token_data.default_properties
+                  ).map(([trait_type, value]): [string, string] => [
+                    trait_type,
+                    value as string,
+                  ]);
+                  _metaData = fixedArray.map(function ([trait_type, value]: [
+                    string,
+                    string
+                  ]) {
+                    const val = Buffer.from(value.slice(2), "hex").toString();
+                    return { trait_type, value: val };
+                  });
                 }
               } catch (error: any) {
                 console.log(error);
@@ -149,6 +176,7 @@ export const collectedNft = async (
             imageUri! != undefined ? await upload(imageUri!) : "";
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
+          newItem.metadata = _metaData;
           newItem.owner = token.owner_address;
           newItem.slug = `${token.collection_name?.replace(
             /[^A-Z0-9]+/gi,
@@ -381,9 +409,9 @@ export const collectedNft = async (
             await _collectionItem.save();
             /******/
           }
-        }
-      })
-    );
+        })
+      );
+    }
   };
 
   await startFetchCurrentTokens(address, 0);
@@ -719,4 +747,73 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     0
   );
   return item;
+};
+
+export const metaDatabySlug = async (slug: string) => {
+  let result: any;
+
+  result = await nftItem.find({
+    slug: slug,
+  });
+  let collectionType: { [key: string]: any } = {};
+
+  result[0]["metadata"]?.map(
+    (_item: { trait_type: string; value: string }, j: number) => {
+      console.log("_item", (collectionType[_item.trait_type] = []));
+    }
+  );
+  result.map((item: any, i: number) => {
+    item["metadata"]?.map(
+      (_item: { trait_type: string; value: string }, j: number) => {
+        if (
+          !collectionType[_item.trait_type].includes(_item.value) &&
+          _item.value != "None"
+        ) {
+          collectionType[_item.trait_type].push(_item.value);
+        }
+      }
+    );
+  });
+  console.log("collectionType", collectionType);
+  let _test = await metaData.create({
+    slug: slug,
+  });
+  _test.metadata = collectionType;
+  _test.save();
+  return result;
+};
+
+export const collectionMetabySlug = async (slug: string) => {
+  const _metaData = await metaData.findOne({
+    slug: slug,
+  });
+  if (!_metaData) return;
+
+  const traits = _metaData["metadata"];
+
+  let response: any = {};
+  let promises = Object.keys(traits).map((key) => {
+    return Promise.all(
+      traits[key].map((val: any) => {
+        return nftItem
+          .find({
+            slug: slug,
+            "metadata.trait_type": key,
+            "metadata.value": val,
+          })
+          .count();
+      })
+    );
+  });
+
+  let result = await Promise.all(promises);
+  let i = 0;
+  for (const key in traits) {
+    response[key] = {};
+    for (const [j, val] of traits[key].entries()) {
+      response[key][val] = result[i][j];
+    }
+    i++;
+  }
+  return response;
 };
