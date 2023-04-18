@@ -91,8 +91,9 @@ async function fetchCollectedNftByAddress(req: Request, res: Response) {
 async function fetchCollection(req: Request, res: Response) {
   try {
     let slug: string = req.params.slug;
+    let filter: string = req.query?.filter as string;
     let isForSale: any = req.query?.isForSale! || false;
-    let result = await collection(decodeURIComponent(slug), isForSale);
+    let result = await collection(decodeURIComponent(slug), isForSale, filter);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);

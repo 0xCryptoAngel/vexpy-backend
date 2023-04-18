@@ -440,25 +440,22 @@ export const collectedNft = async (
   return result;
 };
 
-export const collection = async (slug: string, _isForSale: any) => {
-  var isForSale = _isForSale === "true";
-  let result: any;
-  if (isForSale) {
-    result = await nftItem
-      .find({
-        slug: slug,
-        isForSale: isForSale,
-      })
-      .sort({ price: 1 });
-    return result;
-  } else {
-    result = await nftItem
-      .find({
-        slug: slug,
-      })
-      .sort({ price: 1 });
-    return result;
+export const collection = async (
+  slug: string,
+  _isForSale: any,
+  _filter: string
+) => {
+  let query: any = {
+    slug: slug,
+  };
+  if (_isForSale === "true") {
+    query.isForSale = true;
   }
+  if (_filter != undefined && JSON.parse(_filter).length > 0) {
+    query.metadata = { $elemMatch: { $or: JSON.parse(_filter) } };
+  }
+  let result = await nftItem.find(query).sort({ isForSale: -1, price: 1 });
+  return result;
 };
 
 export const updateListToken = async (token: any) => {
@@ -802,8 +799,7 @@ export const collectionMetabySlug = async (slug: string) => {
         return nftItem
           .find({
             slug: slug,
-            "metadata.trait_type": key,
-            "metadata.value": val,
+            metadata: { $elemMatch: { trait_type: key, value: val } },
           })
           .count();
       })
