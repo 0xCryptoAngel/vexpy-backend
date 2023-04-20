@@ -30,6 +30,7 @@ export const fetchProfile = async (_address: string) => {
       size: 420, // 420px square
       format: "svg", // use SVG instead of PNG
     }).toString()}`;
+    profile.name = _address.slice(-5);
     profile.save();
     return profile;
   }

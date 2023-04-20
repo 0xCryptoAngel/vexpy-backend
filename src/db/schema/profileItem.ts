@@ -3,7 +3,7 @@ const ProfileItem: Schema = new Schema({
   address: { type: String, default: "" },
   name: {
     type: String,
-    default: Math.ceil(Math.random() * 1000000).toString(),
+    default: "",
   },
   bio: { type: String, default: "" },
   email: { type: String, default: "" },
