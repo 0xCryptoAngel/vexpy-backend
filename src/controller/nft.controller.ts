@@ -6,9 +6,6 @@ import { collectionItem } from "../db/schema/collectionItem";
 import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 import { convertURL } from "../utils/graphql";
-const { CF_IMAGES_ACCOUNT_ID, CF_IMAGES_API_KEY, CF_IMAGES_ACCOUNT_HASH } =
-  process.env;
-import { upload } from "../utils/upload";
 import { metaData } from "../db/schema/metaData";
 export const fetchListToken = async () => {
   const result = await nftItem.find({
@@ -172,8 +169,7 @@ export const collectedNft = async (
               },
             },
           });
-          newItem.image_uri =
-            imageUri! != undefined ? await upload(imageUri!) : "";
+          newItem.image_uri = imageUri!;
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.metadata = _metaData;
@@ -268,12 +264,10 @@ export const collectedNft = async (
                 )
               )
             ) {
-              collecteditem.image_uri = await upload(
-                convertURL(
-                  token.current_collection_data.metadata_uri.replace(
-                    "ipfs://",
-                    "https://cloudflare-ipfs.com/ipfs/"
-                  )
+              collecteditem.image_uri = convertURL(
+                token.current_collection_data.metadata_uri.replace(
+                  "ipfs://",
+                  "https://cloudflare-ipfs.com/ipfs/"
                 )
               );
             } else {
@@ -294,22 +288,18 @@ export const collectedNft = async (
                 console.log(error);
               }
               if (typeof test.data == "string") {
-                collecteditem.image_uri = await upload(
-                  convertURL(
-                    token.current_collection_data.metadata_uri.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
+                collecteditem.image_uri = convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
               if (typeof test.data == "object") {
-                collecteditem.image_uri = await upload(
-                  convertURL(
-                    test.data?.image.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
+                collecteditem.image_uri = convertURL(
+                  test.data?.image.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
@@ -360,12 +350,10 @@ export const collectedNft = async (
                 )
               )
             ) {
-              _collectionItem.image_uri = await upload(
-                convertURL(
-                  token.current_collection_data.metadata_uri.replace(
-                    "ipfs://",
-                    "https://cloudflare-ipfs.com/ipfs/"
-                  )
+              _collectionItem.image_uri = convertURL(
+                token.current_collection_data.metadata_uri.replace(
+                  "ipfs://",
+                  "https://cloudflare-ipfs.com/ipfs/"
                 )
               );
             } else {
@@ -386,22 +374,18 @@ export const collectedNft = async (
                 console.log(error);
               }
               if (typeof test.data == "string") {
-                _collectionItem.image_uri = await upload(
-                  convertURL(
-                    token.current_collection_data.metadata_uri.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
+                _collectionItem.image_uri = convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
               if (typeof test.data == "object") {
-                _collectionItem.image_uri = await upload(
-                  convertURL(
-                    test.data?.image.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
+                _collectionItem.image_uri = convertURL(
+                  test.data?.image.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
