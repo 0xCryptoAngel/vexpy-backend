@@ -4,7 +4,6 @@ import { transporter } from "../utils/smtp";
 const Identicon = require("identicon.js");
 
 export const updateProfile = async (_address: string, payload: I_PROFILE) => {
-  console.log("asdasdasda", payload);
   const _profile = await profileItem.findOne({ address: _address });
   if (!_profile) return;
   _profile.name = payload.name;

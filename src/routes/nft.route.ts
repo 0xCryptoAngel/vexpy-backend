@@ -114,6 +114,7 @@ async function fetchCollectionMetaData(req: Request, res: Response) {
 async function updateCollectionMetaData(req: Request, res: Response) {
   try {
     let slug: string = req.params.slug;
+    console.log("slug", slug);
     let result = await metaDatabySlug(decodeURIComponent(slug));
     return res.status(200).send(result);
   } catch (err) {

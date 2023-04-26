@@ -3,7 +3,7 @@ import axios from "axios";
 import { I_TOKEN_ID_DATA, I_TOKEN_SLUG } from "../types/interfaces";
 import { nftItem } from "../db/schema/nftItem";
 import { collectionItem } from "../db/schema/collectionItem";
-import { fetchGraphQL, fetchListEvent } from "../utils/graphql";
+import { arrayFormat, fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 import { convertURL } from "../utils/graphql";
 import { metaData } from "../db/schema/metaData";
@@ -76,9 +76,7 @@ export const collectedNft = async (
         }
       })
     );
-    console.log("newNfts", newNfts);
     const sortedNewNfts = newNfts.filter((item) => item);
-    console.log("sortedNewNfts", sortedNewNfts);
     if (sortedNewNfts.length > 0) {
       await Promise.all(
         sortedNewNfts?.map(async (token: any, i: number) => {
@@ -734,19 +732,19 @@ export const metaDatabySlug = async (slug: string) => {
   let collectionMetaData = await metaData.findOne({
     slug: slug,
   });
-
   if (collectionMetaData) return collectionMetaData;
   else {
     let result: any = await nftItem.find({
       slug: slug,
     });
     let collectionType: { [key: string]: any } = {};
-
-    result[0]["metadata"]?.map(
-      (_item: { trait_type: string; value: string }, j: number) => {
-        console.log("_item", (collectionType[_item.trait_type] = []));
-      }
-    );
+    let testType: any[] = [];
+    result.map((item: any, i: number) => {
+      testType = [...testType, ...item["metadata"]];
+    });
+    arrayFormat(testType)?.map((_item: any, j: number) => {
+      console.log("_item", (collectionType[_item.trait_type] = []));
+    });
     result.map((item: any, i: number) => {
       item["metadata"]?.map(
         (_item: { trait_type: string; value: string }, j: number) => {

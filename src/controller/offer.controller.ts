@@ -527,7 +527,6 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
 };
 
 export const fetchCollectOfferBySlug = async (_slug: string) => {
-  console.log("_slug", _slug);
   let item = await collectionOffer
     .aggregate([
       {

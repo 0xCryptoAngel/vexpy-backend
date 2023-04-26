@@ -50,3 +50,12 @@ export const convertURL = (_url: string) => {
   }
   return image_Uri;
 };
+
+export const arrayFormat = (_arrary: any[]) => {
+  return Object.values(
+    _arrary.reduce((c, e) => {
+      if (!c[e.trait_type]) c[e.trait_type] = e;
+      return c;
+    }, {})
+  );
+};
