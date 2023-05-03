@@ -522,7 +522,6 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
     })
     .sort({ price: -1 })
     .exec();
-  console.log("item", item);
   return item;
 };
 
@@ -545,7 +544,6 @@ export const fetchCollectOfferBySlug = async (_slug: string) => {
     ])
     .sort({ price: -1 })
     .exec();
-  console.log("item", item.length);
   return item;
 };
 

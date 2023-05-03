@@ -7,6 +7,8 @@ import { arrayFormat, fetchGraphQL, fetchListEvent } from "../utils/graphql";
 import { delay } from "../utils/delay";
 import { convertURL } from "../utils/graphql";
 import { metaData } from "../db/schema/metaData";
+import { uploadImage } from "../utils/cloudinary";
+const fetch = require("node-fetch");
 export const fetchListToken = async () => {
   const result = await nftItem.find({
     isForSale: true,
@@ -82,33 +84,66 @@ export const collectedNft = async (
         sortedNewNfts?.map(async (token: any, i: number) => {
           let imageUri: string;
           let _metaData: any[] = [];
+          let _metadata_uri = token.current_token_data.metadata_uri?.slice(-5);
           if (
-            token.current_token_data.metadata_uri
-              ?.slice(-5)
-              .includes(".png" || ".jpeg" || ".jpg" || ".webp")
+            _metadata_uri.includes(".png") ||
+            _metadata_uri.includes(".jpeg") ||
+            _metadata_uri.includes(".jpg") ||
+            _metadata_uri.includes(".webp") ||
+            _metadata_uri.includes(".gif")
           ) {
-            imageUri = token.current_token_data.metadata_uri;
+            imageUri = token.current_token_data.metadata_uri
+              .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+              .replace(
+                "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/"
+              )
+              .replace(
+                "https://ipfs.io/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/"
+              );
           } else {
             if (token.current_token_data.metadata_uri?.length > 0) {
               try {
-                const test = await axios.get(
-                  token.current_token_data.metadata_uri
-                    .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
-                    .replace(
-                      "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
-                    .replace(
-                      "https://ipfs.io/ipfs/",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    ),
-                  {
-                    headers: { "Accept-Encoding": "gzip,deflate,compress" },
-                  }
-                );
+                const str = `{"method":"GET","uri": "${token.current_token_data.metadata_uri
+                  .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
+                  .replace(
+                    "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )
+                  .replace(
+                    "https://ipfs.io/ipfs/",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )}","headers":{},"auth":{"_t":"None"}}`;
+                const buffer = Buffer.from(str);
+                const base64 = buffer.toString("base64");
+
+                const result = await fetch("https://restninja.io/in/proxy", {
+                  headers: {
+                    accept: "*/*",
+                    "accept-language": "en-US,en;q=0.9",
+                    request: base64,
+                    "sec-ch-ua":
+                      '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    cookie:
+                      "_gid=GA1.2.504598292.1683143371; twk_idm_key=iBr3OE0hO0X27d6GpPBRG; sc_is_visitor_unique=rx12865986.1683143462.D63B037B39CA4F220058691E0234DE36.1.1.1.1.1.1.1.1.1; _gat_gtag_UA_2652919_3=1; _ga_JQXWSK7VEK=GS1.1.1683143370.1.1.1683143461.0.0.0; _ga=GA1.1.1030511354.1683143371; TawkConnectionTime=0; twk_uuid_5ae071e9227d3d7edc24b9dc=%7B%22uuid%22%3A%221.SwoXUkJcFEhb6z7ddQwy6V3WPjWccTAuWMmxyc3f2kJzjxMY6u1v8LOAHWcbqOFjq1smhV2S60R3j5aBqlz0T5KuXPXYmLRjNXvregFLXGPzGshnNmcV2%22%2C%22version%22%3A3%2C%22domain%22%3A%22restninja.io%22%2C%22ts%22%3A1683143463669%7D",
+                    Referer: "https://restninja.io/",
+                    "Referrer-Policy": "strict-origin-when-cross-origin",
+                  },
+                  body: null,
+                  method: "POST",
+                });
+
+                let test = await result.json();
+
                 //In this case, URL is json
-                if (typeof test.data == "object") {
-                  imageUri = test.data?.image
+                if (typeof test == "object") {
+                  imageUri = test?.image
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
                     .replace(
                       "https://green-elegant-opossum-682.mypinata.cloud/ipfs/",
@@ -118,16 +153,14 @@ export const collectedNft = async (
                       "https://ipfs.io/ipfs/",
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
-
-                  if (test.data?.attributes?.length > 0) {
-                    _metaData = test.data?.attributes;
+                  if (test?.attributes?.length > 0) {
+                    _metaData = test?.attributes;
                   } else {
-                    _metaData = test.data?.properties;
+                    _metaData = test?.properties;
                   }
                 }
-
-                //In this case, URL is image
-                if (typeof test.data == "string") {
+              } catch (error: any) {
+                if (error.type == "invalid-json") {
                   imageUri = token.current_token_data.metadata_uri
                     ?.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
                     .replace(
@@ -152,8 +185,6 @@ export const collectedNft = async (
                     return { trait_type, value: val };
                   });
                 }
-              } catch (error: any) {
-                console.log(error);
               }
             }
           }
@@ -167,7 +198,7 @@ export const collectedNft = async (
               },
             },
           });
-          newItem.image_uri = imageUri!;
+          newItem.image_uri = await uploadImage(imageUri!);
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.metadata = _metaData;
@@ -253,7 +284,7 @@ export const collectedNft = async (
                   "https://ipfs.io/ipfs/",
                   "https://cloudflare-ipfs.com/ipfs/"
                 );
-
+            let image_uri: string;
             if (
               isImageUrl(
                 convertURL(token.current_collection_data.metadata_uri).replace(
@@ -262,46 +293,71 @@ export const collectedNft = async (
                 )
               )
             ) {
-              collecteditem.image_uri = convertURL(
-                token.current_collection_data.metadata_uri.replace(
-                  "ipfs://",
-                  "https://cloudflare-ipfs.com/ipfs/"
-                )
-              );
-            } else {
-              let test: any;
               try {
-                test = await axios.get(
-                  convertURL(
-                    token.current_collection_data.metadata_uri.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
-                  ),
-                  {
-                    headers: { "Accept-Encoding": "gzip,deflate,compress" },
-                  }
-                );
-              } catch (error) {
-                console.log(error);
-              }
-              if (typeof test.data == "string") {
-                collecteditem.image_uri = convertURL(
+                image_uri = convertURL(
                   token.current_collection_data.metadata_uri.replace(
                     "ipfs://",
                     "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
+              } catch (error) {
+                console.log(error);
               }
-              if (typeof test.data == "object") {
-                collecteditem.image_uri = convertURL(
-                  test.data?.image.replace(
+            } else {
+              let test: any;
+              try {
+                const str = `{"method":"GET","uri": "${convertURL(
+                  token.current_collection_data.metadata_uri.replace(
+                    "ipfs://",
+                    "https://cloudflare-ipfs.com/ipfs/"
+                  )
+                )}","headers":{},"auth":{"_t":"None"}}`;
+                const buffer = Buffer.from(str);
+                const base64 = buffer.toString("base64");
+
+                const result = await fetch("https://restninja.io/in/proxy", {
+                  headers: {
+                    accept: "*/*",
+                    "accept-language": "en-US,en;q=0.9",
+                    request: base64,
+                    "sec-ch-ua":
+                      '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    cookie:
+                      "_gid=GA1.2.504598292.1683143371; twk_idm_key=iBr3OE0hO0X27d6GpPBRG; sc_is_visitor_unique=rx12865986.1683143462.D63B037B39CA4F220058691E0234DE36.1.1.1.1.1.1.1.1.1; _gat_gtag_UA_2652919_3=1; _ga_JQXWSK7VEK=GS1.1.1683143370.1.1.1683143461.0.0.0; _ga=GA1.1.1030511354.1683143371; TawkConnectionTime=0; twk_uuid_5ae071e9227d3d7edc24b9dc=%7B%22uuid%22%3A%221.SwoXUkJcFEhb6z7ddQwy6V3WPjWccTAuWMmxyc3f2kJzjxMY6u1v8LOAHWcbqOFjq1smhV2S60R3j5aBqlz0T5KuXPXYmLRjNXvregFLXGPzGshnNmcV2%22%2C%22version%22%3A3%2C%22domain%22%3A%22restninja.io%22%2C%22ts%22%3A1683143463669%7D",
+                    Referer: "https://restninja.io/",
+                    "Referrer-Policy": "strict-origin-when-cross-origin",
+                  },
+                  body: null,
+                  method: "POST",
+                });
+
+                test = await result.json();
+              } catch (error: any) {
+                if (error.type == "invalid-json") {
+                  image_uri = convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  );
+                }
+              }
+
+              if (typeof test == "object") {
+                image_uri = convertURL(
+                  test?.image.replace(
                     "ipfs://",
                     "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
             }
+            collecteditem.image_uri = await uploadImage(image_uri!);
             await collecteditem.save();
             /******/
           } else {
@@ -334,10 +390,7 @@ export const collectedNft = async (
                   "https://ipfs.io/ipfs/",
                   "https://cloudflare-ipfs.com/ipfs/"
                 );
-            console.log(
-              "convertURL(token.current_collection_data.metadata_uri)",
-              token.current_collection_data.metadata_uri
-            );
+            let _image_uri: string;
             if (
               isImageUrl(
                 convertURL(
@@ -348,7 +401,7 @@ export const collectedNft = async (
                 )
               )
             ) {
-              _collectionItem.image_uri = convertURL(
+              _image_uri = convertURL(
                 token.current_collection_data.metadata_uri.replace(
                   "ipfs://",
                   "https://cloudflare-ipfs.com/ipfs/"
@@ -357,37 +410,66 @@ export const collectedNft = async (
             } else {
               let test: any;
               try {
-                test = await axios.get(
-                  convertURL(
-                    token.current_collection_data.metadata_uri.replace(
-                      "ipfs://",
-                      "https://cloudflare-ipfs.com/ipfs/"
-                    )
-                  ),
-                  {
-                    headers: { "Accept-Encoding": "gzip,deflate,compress" },
-                  }
-                );
-              } catch (error) {
-                console.log(error);
-              }
-              if (typeof test.data == "string") {
-                _collectionItem.image_uri = convertURL(
+                const str = `{"method":"GET","uri": "${convertURL(
                   token.current_collection_data.metadata_uri.replace(
                     "ipfs://",
                     "https://cloudflare-ipfs.com/ipfs/"
                   )
-                );
+                )}","headers":{},"auth":{"_t":"None"}}`;
+                const buffer = Buffer.from(str);
+                const base64 = buffer.toString("base64");
+
+                const result = await fetch("https://restninja.io/in/proxy", {
+                  headers: {
+                    accept: "*/*",
+                    "accept-language": "en-US,en;q=0.9",
+                    request: base64,
+                    "sec-ch-ua":
+                      '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    cookie:
+                      "_gid=GA1.2.504598292.1683143371; twk_idm_key=iBr3OE0hO0X27d6GpPBRG; sc_is_visitor_unique=rx12865986.1683143462.D63B037B39CA4F220058691E0234DE36.1.1.1.1.1.1.1.1.1; _gat_gtag_UA_2652919_3=1; _ga_JQXWSK7VEK=GS1.1.1683143370.1.1.1683143461.0.0.0; _ga=GA1.1.1030511354.1683143371; TawkConnectionTime=0; twk_uuid_5ae071e9227d3d7edc24b9dc=%7B%22uuid%22%3A%221.SwoXUkJcFEhb6z7ddQwy6V3WPjWccTAuWMmxyc3f2kJzjxMY6u1v8LOAHWcbqOFjq1smhV2S60R3j5aBqlz0T5KuXPXYmLRjNXvregFLXGPzGshnNmcV2%22%2C%22version%22%3A3%2C%22domain%22%3A%22restninja.io%22%2C%22ts%22%3A1683143463669%7D",
+                    Referer: "https://restninja.io/",
+                    "Referrer-Policy": "strict-origin-when-cross-origin",
+                  },
+                  body: null,
+                  method: "POST",
+                });
+
+                test = await result.json();
+              } catch (error: any) {
+                console.log(error);
+                if (error.type == "invalid-json") {
+                  _image_uri = convertURL(
+                    token.current_collection_data.metadata_uri.replace(
+                      "ipfs://",
+                      "https://cloudflare-ipfs.com/ipfs/"
+                    )
+                  );
+                }
               }
-              if (typeof test.data == "object") {
-                _collectionItem.image_uri = convertURL(
-                  test.data?.image.replace(
+              // if (typeof test == "string") {
+              //   _collectionItem.image_uri = convertURL(
+              //     token.current_collection_data.metadata_uri.replace(
+              //       "ipfs://",
+              //       "https://cloudflare-ipfs.com/ipfs/"
+              //     )
+              //   );
+              // }
+              if (typeof test == "object") {
+                _image_uri = convertURL(
+                  test?.image.replace(
                     "ipfs://",
                     "https://cloudflare-ipfs.com/ipfs/"
                   )
                 );
               }
             }
+            _collectionItem.image_uri = await uploadImage(_image_uri!);
             await _collectionItem.save();
             /******/
           }
