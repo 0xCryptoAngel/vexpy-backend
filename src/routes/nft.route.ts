@@ -42,15 +42,19 @@ async function updateItem(req: Request, res: Response) {
       switch (body.type) {
         case "REQUEST_MINT":
           data = await handleMintRequest(body.tokenId);
+          cache.set(body.type + "updateItem");
           break;
         case "REQUEST_LIST":
           data = await handleListingRequest(body.tokenId);
+          cache.set(body.type + "updateItem");
           break;
         case "REQUEST_CANCEL":
           data = await handleCancelRequest(body.tokenId);
+          cache.set(body.type + "updateItem");
           break;
         case "REQUEST_PURCHASE":
           data = await handleBuyRequest(body.tokenId);
+          cache.set(body.type + "updateItem");
           break;
         default:
           break;
