@@ -1,5 +1,7 @@
 import express, { Request, Response } from "express";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
+const NodeCache = require("node-cache");
+const cache = new NodeCache({ stdTTL: 300 }); // Caching time (second) 5 mins = 300 second
 import {
   updateItem,
   fetchItem,
@@ -7,41 +9,58 @@ import {
   fetchCollectionData,
 } from "../controller/collection.controller";
 
-async function updateCollection(req: Request, res: Response) {
+async function fetchTopCollection(req: Request, res: Response) {
   try {
-    let { slug, amount } = req.params;
-    const body: I_TOKEN_ID_DATA = req.body;
-    let result = await updateItem(slug, amount, body);
-    return res.status(200).send(result);
+    let period: any = req.query?.period;
+    let data = cache.get(period + "collection");
+    if (!data) {
+      data = await fetchCollection(parseInt(period));
+      cache.set(period + "collection", data);
+    }
+    return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
+
+// async function updateCollection(req: Request, res: Response) {
+//   try {
+//     let { slug, amount } = req.params;
+//     const body: I_TOKEN_ID_DATA = req.body;
+//     let data = cache.get(slug + amount + "updateCollection");
+//     if (!data) {
+//       data = await updateItem(slug, amount, body);
+//       cache.set(slug + amount + "updateCollection", data);
+//     }
+//     return res.status(200).send(data);
+//   } catch (err) {
+//     return res.status(500).send({ response: "Error", result: err });
+//   }
+// }
 
 async function fetchParams(req: Request, res: Response) {
   try {
     let { slug } = req.params;
-    let result = await fetchItem(slug);
-    return res.status(200).send(result);
+    let data = cache.get(slug + "fetchParams");
+    if (!data) {
+      data = await fetchItem(slug);
+      cache.set(slug + "fetchParams", data);
+    }
+    return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
   }
 }
 
-async function fetchTopCollection(req: Request, res: Response) {
-  try {
-    let period: any = req.query?.period;
-    let result = await fetchCollection(parseInt(period));
-    return res.status(200).send(result);
-  } catch (err) {
-    return res.status(500).send({ response: "Error", result: err });
-  }
-}
 async function fetchCollectionDataBySlug(req: Request, res: Response) {
   try {
     let { slug } = req.params;
-    let result = await fetchCollectionData(slug);
-    return res.status(200).send(result);
+    let data = cache.get(slug + "fetchCollectionDataBySlug");
+    if (!data) {
+      data = await fetchCollectionData(slug);
+      cache.set(slug + "fetchCollectionDataBySlug", data);
+    }
+    return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
   }
@@ -50,7 +69,7 @@ async function fetchCollectionDataBySlug(req: Request, res: Response) {
 module.exports = () => {
   const collectionRoute = express.Router();
   collectionRoute.get("/collection/fetch", fetchTopCollection);
-  collectionRoute.put("/update/:slug/:amount", updateCollection);
+  // collectionRoute.put("/update/:slug/:amount", updateCollection);
   collectionRoute.get("/:slug", fetchParams);
   collectionRoute.get("/collection/:slug", fetchCollectionDataBySlug);
   return collectionRoute;
