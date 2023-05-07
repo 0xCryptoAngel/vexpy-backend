@@ -1,3 +1,5 @@
+const NodeCache = require("node-cache");
+
 export const fetchGraphQL = async (
   operationsDoc: string,
   operationName: string,
@@ -59,3 +61,5 @@ export const arrayFormat = (_arrary: any[]) => {
     }, {})
   );
 };
+
+export const cache = new NodeCache({ stdTTL: process.env.CACHE_TIME }); // Caching time (second) 5 mins = 300 second

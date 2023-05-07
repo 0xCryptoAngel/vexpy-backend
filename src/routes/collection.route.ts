@@ -1,13 +1,13 @@
 import express, { Request, Response } from "express";
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
-const NodeCache = require("node-cache");
-const cache = new NodeCache({ stdTTL: 300 }); // Caching time (second) 5 mins = 300 second
+
 import {
   updateItem,
   fetchItem,
   fetchCollection,
   fetchCollectionData,
 } from "../controller/collection.controller";
+import { cache } from "../utils/graphql";
 
 async function fetchTopCollection(req: Request, res: Response) {
   try {
