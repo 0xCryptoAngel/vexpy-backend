@@ -255,7 +255,9 @@ export const collectedNft = async (
           let _collectionItem = await collectionItem.findOne({
             "key.token_data_id.collection": token.collection_name,
           });
-
+          let _royalty =
+            token.current_token_data.royalty_points_numerator /
+            token.current_token_data.royalty_points_denominator;
           const imageUrlRegex = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i;
 
           function isImageUrl(url: string) {
@@ -290,6 +292,7 @@ export const collectedNft = async (
             collecteditem.name = token.current_collection_data.collection_name;
             collecteditem.description =
               token.current_collection_data.description;
+            collecteditem.royalty = isNaN(_royalty) ? 0 : _royalty;
             collecteditem.metadata_uri =
               token.current_collection_data.metadata_uri
                 .replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/")
@@ -379,6 +382,8 @@ export const collectedNft = async (
             /******/
           } else {
             _collectionItem.supply = token.current_collection_data.supply;
+            _collectionItem.royalty = isNaN(_royalty) ? 0 : _royalty;
+
             let itemAmount = await nftItem
               .find({
                 "key.token_data_id.collection": token.collection_name,
