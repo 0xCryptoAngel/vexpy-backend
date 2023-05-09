@@ -102,6 +102,20 @@ export const collectedNft = async (
                 "https://ipfs.io/ipfs/",
                 "https://cloudflare-ipfs.com/ipfs/"
               );
+            const fixedArray = Object.entries(
+              token?.current_token_data?.default_properties
+            ).map(([trait_type, value]): [string, string] => [
+              trait_type,
+              value as string,
+            ]);
+
+            _metaData = fixedArray.map(function ([trait_type, value]: [
+              string,
+              string
+            ]) {
+              const val = Buffer.from(value.slice(2), "hex").toString();
+              return { trait_type, value: val };
+            });
           } else {
             if (token.current_token_data.metadata_uri?.length > 0) {
               try {
@@ -172,11 +186,12 @@ export const collectedNft = async (
                       "https://cloudflare-ipfs.com/ipfs/"
                     );
                   const fixedArray = Object.entries(
-                    token.current_token_data.default_properties
+                    token?.current_token_data?.default_properties
                   ).map(([trait_type, value]): [string, string] => [
                     trait_type,
                     value as string,
                   ]);
+
                   _metaData = fixedArray.map(function ([trait_type, value]: [
                     string,
                     string
@@ -198,10 +213,12 @@ export const collectedNft = async (
               },
             },
           });
+
           newItem.image_uri = await uploadImage(imageUri!);
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
           newItem.metadata = _metaData;
+          console.log("newItem", newItem);
           newItem.owner = token.owner_address;
           newItem.slug = `${token.collection_name?.replace(
             /[^A-Z0-9]+/gi,
@@ -452,14 +469,6 @@ export const collectedNft = async (
                   );
                 }
               }
-              // if (typeof test == "string") {
-              //   _collectionItem.image_uri = convertURL(
-              //     token.current_collection_data.metadata_uri.replace(
-              //       "ipfs://",
-              //       "https://cloudflare-ipfs.com/ipfs/"
-              //     )
-              //   );
-              // }
               if (typeof test == "object") {
                 _image_uri = convertURL(
                   test?.image.replace(
@@ -545,13 +554,42 @@ export const updateListToken = async (token: any) => {
 };
 
 export const handleNft = async (tokenIdData: I_TOKEN_SLUG) => {
-  const item = await nftItem
-    .findOne({
-      "key.property_version": tokenIdData?.property_version,
-      "key.token_data_id.name": tokenIdData?.name,
-      slug: tokenIdData?.slug,
-    })
+  // const item = await nftItem
+  //   .findOne({
+  //     "key.property_version": tokenIdData?.property_version,
+  //     "key.token_data_id.name": tokenIdData?.name,
+  //     slug: tokenIdData?.slug,
+  //   })
+  //   .exec();
+
+  let item = await nftItem
+    .aggregate([
+      {
+        $lookup: {
+          from: "collectionitems", //other table name
+          localField: "slug", //name of car table field
+          foreignField: "slug", //name of cardetails table field
+          as: "collection", //alias for cardetails table
+        },
+      },
+      {
+        $match: {
+          "key.property_version": tokenIdData?.property_version,
+          "key.token_data_id.name": tokenIdData?.name,
+          slug: tokenIdData?.slug,
+        },
+      },
+      {
+        $lookup: {
+          from: "profileitems", //other table name
+          localField: "owner", //name of car table field
+          foreignField: "address", //name of cardetails table field
+          as: "profile", //alias for cardetails table
+        },
+      },
+    ])
     .exec();
+
   return item;
 };
 

@@ -71,6 +71,7 @@ async function updateItem(req: Request, res: Response) {
 async function fetchNft(req: Request, res: Response) {
   try {
     const body: I_TOKEN_SLUG = req.body;
+    console.log("body", body);
     let data = cache.get(JSON.stringify(body) + "fetchNft");
     if (!data) {
       data = await handleNft(body);

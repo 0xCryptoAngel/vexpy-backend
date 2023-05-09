@@ -12,10 +12,10 @@ import { cache } from "../utils/graphql";
 async function fetchTopCollection(req: Request, res: Response) {
   try {
     let period: any = req.query?.period;
-    let data = cache.get(period + "collection");
+    let data = cache.get(period + "fetchTopCollection");
     if (!data) {
       data = await fetchCollection(parseInt(period));
-      cache.set(period + "collection", data);
+      cache.set(period + "fetchTopCollection", data);
     }
     return res.status(200).send(data);
   } catch (err) {
