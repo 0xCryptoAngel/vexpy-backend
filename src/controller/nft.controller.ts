@@ -8,6 +8,7 @@ import { delay } from "../utils/delay";
 import { convertURL } from "../utils/graphql";
 import { metaData } from "../db/schema/metaData";
 import { uploadImage } from "../utils/cloudinary";
+import { collectionFilter } from "../db/schema/collectionFilter";
 const fetch = require("node-fetch");
 export const fetchListToken = async () => {
   const result = await nftItem.find({
@@ -170,7 +171,20 @@ export const collectedNft = async (
                   if (test?.attributes?.length > 0) {
                     _metaData = test?.attributes;
                   } else {
-                    _metaData = test?.properties;
+                    const fixedArray = Object.entries(
+                      token?.current_token_data?.default_properties
+                    ).map(([trait_type, value]): [string, string] => [
+                      trait_type,
+                      value as string,
+                    ]);
+
+                    _metaData = fixedArray.map(function ([trait_type, value]: [
+                      string,
+                      string
+                    ]) {
+                      const val = Buffer.from(value.slice(2), "hex").toString();
+                      return { trait_type, value: val };
+                    });
                   }
                 }
               } catch (error: any) {
@@ -214,6 +228,13 @@ export const collectedNft = async (
             },
           });
 
+          // let newItem = await nftItem.findOne({
+          //   "key.property_version": token.property_version,
+          //   "key.token_data_id.collection": token.collection_name,
+          //   "key.token_data_id.creator": token.creator_address,
+          //   "key.token_data_id.name": token.name,
+          // });
+          // if (!newItem) return;
           newItem.image_uri = await uploadImage(imageUri!);
           newItem.description = token.current_token_data.description;
           newItem.isForSale = false;
@@ -864,6 +885,7 @@ export const metaDatabySlug = async (slug: string) => {
     });
     let collectionType: { [key: string]: any } = {};
     let testType: any[] = [];
+
     result.map((item: any, i: number) => {
       testType = [...testType, ...item["metadata"]];
     });
@@ -892,10 +914,93 @@ export const metaDatabySlug = async (slug: string) => {
 };
 
 export const collectionMetabySlug = async (slug: string) => {
-  const _metaData = await metaData.findOne({
+  const _metaData = await collectionFilter.aggregate([
+    {
+      $lookup: {
+        from: "collectionitems", //other table name
+        localField: "slug", //name of car table field
+        foreignField: "slug", //name of cardetails table field
+        as: "collection", //alias for cardetails table
+      },
+    },
+    {
+      $match: { slug: slug },
+    },
+  ]);
+
+  if (!_metaData) return;
+  // if (!_metaData) return;
+
+  // const traits = _metaData["metadata"];
+
+  // let response: any = {};
+  // let promises = Object.keys(traits).map((key) => {
+  //   return Promise.all(
+  //     traits[key].map((val: any) => {
+  //       return nftItem
+  //         .find({
+  //           slug: slug,
+  //           metadata: { $elemMatch: { trait_type: key, value: val } },
+  //         })
+  //         .count();
+  //     })
+  //   );
+  // });
+
+  // let result = await Promise.all(promises);
+  // let i = 0;
+  // for (const key in traits) {
+  //   response[key] = {};
+  //   for (const [j, val] of traits[key].entries()) {
+  //     response[key][val] = result[i][j];
+  //   }
+  //   i++;
+  // }
+  console.log("_metaData", _metaData);
+  return _metaData;
+};
+
+export const cronCollectionMetabySlug = async (slug: string) => {
+  let __metaData = await metaData.findOne({
     slug: slug,
   });
-  if (!_metaData) return;
+
+  let _metaData: any;
+
+  if (__metaData) {
+    _metaData = __metaData;
+  } else {
+    let result: any = await nftItem.find({
+      slug: slug,
+    });
+    let collectionType: { [key: string]: any } = {};
+    let testType: any[] = [];
+
+    result.map((item: any, i: number) => {
+      testType = [...testType, ...item["metadata"]];
+    });
+    arrayFormat(testType)?.map((_item: any, j: number) => {
+      console.log("_item", (collectionType[_item.trait_type] = []));
+    });
+    result.map((item: any, i: number) => {
+      item["metadata"]?.map(
+        (_item: { trait_type: string; value: string }, j: number) => {
+          if (
+            !collectionType[_item.trait_type].includes(_item.value) &&
+            _item.value != "None"
+          ) {
+            collectionType[_item.trait_type].push(_item.value);
+          }
+        }
+      );
+    });
+    let _test = await metaData.create({
+      slug: slug,
+    });
+    _test.metadata = collectionType;
+    _test.save();
+    _metaData = _test;
+  }
 
   const traits = _metaData["metadata"];
 
@@ -922,5 +1027,12 @@ export const collectionMetabySlug = async (slug: string) => {
     }
     i++;
   }
+  await collectionFilter.findOneAndUpdate(
+    {
+      slug: slug,
+    },
+    { metadata: response },
+    { new: true, upsert: true }
+  );
   return response;
 };
