@@ -1,6 +1,7 @@
 import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { collectionItem } from "../db/schema/collectionItem";
 import { nftItem } from "../db/schema/nftItem";
+import { activity } from "../db/schema/activity";
 export const updateItem = async (
   slug: string,
   amount: string,
@@ -47,5 +48,16 @@ export const fetchCollectionData = async (slug: string) => {
     })
     .exec();
   if (!item) return;
+  return item;
+};
+
+export const fetchActivity = async (slug: string, eventType: string) => {
+  let item = await activity
+    .find({
+      slug: slug,
+      buyer: { $exists: eventType == "0" ? true : false },
+    })
+    .sort({ timestamp: -1 })
+    .exec();
   return item;
 };

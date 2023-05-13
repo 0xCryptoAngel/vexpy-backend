@@ -4,7 +4,12 @@ import bodyParser from "body-parser";
 import dbConfig from "./src/db/dbConfig";
 import { collectionItem } from "./src/db/schema/collectionItem";
 import { CronJob } from "cron";
-import { cronCollectionMetabySlug } from "./src/controller/nft.controller";
+import {
+  activitybySlug,
+  cronCollectionMetabySlug,
+} from "./src/controller/nft.controller";
+import { fetchListEvent } from "./src/utils/graphql";
+import { MARKET_ADDRESS } from "./src/config/constants";
 const cors = require("cors");
 const app = express();
 ///enabled CORS
@@ -24,11 +29,27 @@ dbConfig();
 const router = require("./src/routes")();
 app.use("/api", router);
 
-let _cronJob = new CronJob("0 */10 * * * *", async () => {
+let eventType = [
+  "ListTokenEvent",
+  "BuyTokenEvent",
+  "AcceptOfferEvent",
+  "SellCollectionOfferEvent",
+];
+let _cronJob = new CronJob("*/30 * * * * *", async () => {
   try {
     let test = await collectionItem.find({});
     test.map(async (item: any, i: number) => {
       await cronCollectionMetabySlug(item.slug);
+    });
+    eventType.map(async (type: string, i: number) => {
+      const typeEvent = await fetchListEvent(
+        MARKET_ADDRESS!,
+        `${MARKET_ADDRESS}::marketplace::${type}`,
+        0
+      );
+      typeEvent.data.events.map(async (item: any, i: number) => {
+        await activitybySlug(item);
+      });
     });
     const d = new Date();
     console.log("Every Tenth Minute:", d);

@@ -9,6 +9,7 @@ import { convertURL } from "../utils/graphql";
 import { metaData } from "../db/schema/metaData";
 import { uploadImage } from "../utils/cloudinary";
 import { collectionFilter } from "../db/schema/collectionFilter";
+import { activity } from "../db/schema/activity";
 const fetch = require("node-fetch");
 export const fetchListToken = async () => {
   const result = await nftItem.find({
@@ -956,7 +957,6 @@ export const collectionMetabySlug = async (slug: string) => {
   //   }
   //   i++;
   // }
-  console.log("_metaData", _metaData);
   return _metaData;
 };
 
@@ -1035,4 +1035,55 @@ export const cronCollectionMetabySlug = async (slug: string) => {
     { new: true, upsert: true }
   );
   return response;
+};
+
+export const activitybySlug = async (item: any) => {
+  let result = await activity.findOne({
+    "key.property_version": item.data.token_id.property_version,
+    "key.token_data_id.collection": item.data.token_id.token_data_id.collection,
+    "key.token_data_id.creator": item.data.token_id.token_data_id.creator,
+    "key.token_data_id.name": item.data.token_id.token_data_id.name,
+    timestamp: item.data.timestamp ? item.data.timestamp : item.data.sold_at,
+    price: item.data.price
+      ? item.data.price / 100000000
+      : item.data.price_per_item / 100000000,
+  });
+
+  if (!result) {
+    let _nftItem = await nftItem.findOne({
+      "key.property_version": item.data.token_id.property_version,
+      "key.token_data_id.collection":
+        item.data.token_id.token_data_id.collection,
+      "key.token_data_id.creator": item.data.token_id.token_data_id.creator,
+      "key.token_data_id.name": item.data.token_id.token_data_id.name,
+    });
+    if (!_nftItem) return;
+    let activityItem = await activity.create({
+      key: {
+        property_version: item.data.token_id.property_version,
+        token_data_id: {
+          collection: item.data.token_id.token_data_id.collection,
+          creator: item.data.token_id.token_data_id.creator,
+          name: item.data.token_id.token_data_id.name,
+        },
+      },
+    });
+    activityItem.slug = `${item.data.token_id.token_data_id.collection?.replace(
+      /[^A-Z0-9]+/gi,
+      "-"
+    )}-${item.data.token_id.token_data_id.creator.substring(61)}`;
+    activityItem.timestamp = item.data.timestamp
+      ? item.data.timestamp
+      : item.data.sold_at;
+    activityItem.price = item.data.price
+      ? item.data.price / 100000000
+      : item.data.price_per_item / 100000000;
+    activityItem.seller = item.data.seller;
+    activityItem.buyer = item.data.buyer;
+    activityItem.version = item.transaction_version;
+    activityItem.image = _nftItem ? _nftItem.image_uri : "";
+    activityItem.save();
+  }
+
+  return "ok";
 };

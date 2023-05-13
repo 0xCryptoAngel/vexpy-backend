@@ -6,6 +6,7 @@ import {
   fetchItem,
   fetchCollection,
   fetchCollectionData,
+  fetchActivity,
 } from "../controller/collection.controller";
 import { cache } from "../utils/graphql";
 
@@ -66,11 +67,26 @@ async function fetchCollectionDataBySlug(req: Request, res: Response) {
   }
 }
 
+async function fetchActivityBySlug(req: Request, res: Response) {
+  try {
+    let { slug, eventType } = req.params;
+    let data = cache.get(slug + eventType + "fetchActivityBySlug");
+    if (!data) {
+      data = await fetchActivity(slug, eventType);
+      cache.set(slug + eventType + "fetchActivityBySlug", data);
+    }
+    return res.status(200).send(data);
+  } catch (err) {
+    return res.status(500).send({ response: "Error", result: err });
+  }
+}
+
 module.exports = () => {
   const collectionRoute = express.Router();
   collectionRoute.get("/collection/fetch", fetchTopCollection);
   // collectionRoute.put("/update/:slug/:amount", updateCollection);
   collectionRoute.get("/:slug", fetchParams);
   collectionRoute.get("/collection/:slug", fetchCollectionDataBySlug);
+  collectionRoute.get("/activity/:eventType/:slug", fetchActivityBySlug);
   return collectionRoute;
 };
