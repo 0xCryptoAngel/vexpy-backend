@@ -70,11 +70,11 @@ async function fetchCollectionDataBySlug(req: Request, res: Response) {
 async function fetchActivityBySlug(req: Request, res: Response) {
   try {
     let { slug, eventType } = req.params;
-    let data = cache.get(slug + eventType + "fetchActivityBySlug");
-    if (!data) {
-      data = await fetchActivity(slug, eventType);
-      cache.set(slug + eventType + "fetchActivityBySlug", data);
-    }
+    // let data = cache.get(slug + eventType + "fetchActivityBySlug");
+    // if (!data) {
+    let data = await fetchActivity(slug, eventType);
+    //   cache.set(slug + eventType + "fetchActivityBySlug", data);
+    // }
     return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
