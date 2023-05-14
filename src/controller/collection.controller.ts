@@ -31,9 +31,9 @@ export const fetchItem = async (slug: string) => {
 export const fetchCollection = async (_period: number) => {
   let item = await collectionItem
     .find({
-      // lastSoldAt: {
-      //   $gte: new Date(new Date().getTime() - 3600 * _period * 1000),
-      // },
+      lastSoldAt: {
+        $gte: new Date(new Date().getTime() - 3600 * _period * 1000),
+      },
     })
     .sort({ volume: -1 })
     .exec();
