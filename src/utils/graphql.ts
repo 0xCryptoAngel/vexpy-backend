@@ -21,7 +21,7 @@ const operationsDoc = `
 query listEvent($account_address: String, $type: String, $offset: Int) {
   events(
     offset: $offset
-    order_by: {account_address: desc, event_index: asc, transaction_version: desc}
+    order_by: {account_address: desc, transaction_version: desc}
     where: {account_address: {_eq: $account_address}, type: {_eq: $type}}
   ) {
     data
