@@ -19,6 +19,7 @@ const CollectionItem: Schema = new Schema({
   floor: { type: Number, default: 0 },
   slug: { type: String, default: "" },
   name: { type: String, default: "" },
+  topoffer: { type: Number, default: 0 },
   royalty: { type: Number, default: 0 },
   description: { type: String, default: "" },
   metadata_uri: { type: String, default: "" },

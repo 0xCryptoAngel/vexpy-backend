@@ -310,6 +310,10 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         },
       },
     });
+    let _slug = `${tokenIdData.token_data_id.collection?.replace(
+      /[^A-Z0-9]+/gi,
+      "-"
+    )}-${tokenIdData.token_data_id.creator.substring(61)}`;
     newItem.price = data.events[0].data.price_per_token;
     newItem.offerer = `0x${data.events[0].data.buyer
       .substring(2)
@@ -318,12 +322,27 @@ export const handleCollectRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
     newItem.timestamp = data.events[0].data.created_at;
     newItem.amount = data.events[0].data.amount;
     newItem.leftAmount = data.events[0].data.amount;
-    newItem.slug = `${tokenIdData.token_data_id.collection?.replace(
-      /[^A-Z0-9]+/gi,
-      "-"
-    )}-${tokenIdData.token_data_id.creator.substring(61)}`;
+
+    newItem.slug = _slug;
     newItem.isforitem = false;
     await newItem.save();
+    const topoffer = await collectionOffer
+      .find({ slug: _slug })
+      .sort({ price: -1 })
+      .exec();
+    if (!topoffer) return;
+    const collectionData = await collectionItem
+      .findOne({
+        slug: `${tokenIdData.token_data_id.collection?.replace(
+          /[^A-Z0-9]+/gi,
+          "-"
+        )}-${tokenIdData.token_data_id.creator.substring(61)}`,
+      })
+      .exec();
+
+    if (!collectionData) return;
+    collectionData.topoffer = topoffer[0]?.price / 100000000;
+    await collectionData.save();
     // let item = await offerItem
     //   .find({
     //     "key.property_version": tokenIdData.property_version,
