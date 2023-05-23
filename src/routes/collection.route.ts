@@ -13,11 +13,11 @@ import { cache } from "../utils/graphql";
 async function fetchTopCollection(req: Request, res: Response) {
   try {
     let period: any = req.query?.period;
-    let data = cache.get(period + "fetchTopCollection");
-    if (!data) {
-      data = await fetchCollection(parseInt(period));
-      cache.set(period + "fetchTopCollection", data);
-    }
+    // let data = cache.get(period + "fetchTopCollection");
+    // if (!data) {
+    let data = await fetchCollection(parseInt(period));
+    //   cache.set(period + "fetchTopCollection", data);
+    // }
     return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
@@ -42,11 +42,11 @@ async function fetchTopCollection(req: Request, res: Response) {
 async function fetchParams(req: Request, res: Response) {
   try {
     let { slug } = req.params;
-    let data = cache.get(slug + "fetchParams");
-    if (!data) {
-      data = await fetchItem(slug);
-      cache.set(slug + "fetchParams", data);
-    }
+    // let data = cache.get(slug + "fetchParams");
+    // if (!data) {
+    let data = await fetchItem(slug);
+    //   cache.set(slug + "fetchParams", data);
+    // }
     return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
@@ -56,11 +56,11 @@ async function fetchParams(req: Request, res: Response) {
 async function fetchCollectionDataBySlug(req: Request, res: Response) {
   try {
     let { slug } = req.params;
-    let data = cache.get(slug + "fetchCollectionDataBySlug");
-    if (!data) {
-      data = await fetchCollectionData(slug);
-      cache.set(slug + "fetchCollectionDataBySlug", data);
-    }
+    // let data = cache.get(slug + "fetchCollectionDataBySlug");
+    // if (!data) {
+    let data = await fetchCollectionData(slug);
+    //   cache.set(slug + "fetchCollectionDataBySlug", data);
+    // }
     return res.status(200).send(data);
   } catch (err) {
     return res.status(500).send({ response: "Error", result: err });
