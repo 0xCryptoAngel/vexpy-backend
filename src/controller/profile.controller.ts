@@ -4,7 +4,10 @@ import { transporter } from "../utils/smtp";
 const Identicon = require("identicon.js");
 
 export const updateProfile = async (_address: string, payload: I_PROFILE) => {
-  const _profile = await profileItem.findOne({ address: _address });
+  const _profile = await profileItem
+    .findOne({ address: _address })
+    .lean()
+    .exec();
   if (!_profile) return;
   _profile.name = payload.name;
   _profile.bio = payload.bio;
@@ -20,7 +23,10 @@ export const updateProfile = async (_address: string, payload: I_PROFILE) => {
 };
 
 export const fetchProfile = async (_address: string) => {
-  const _profile = await profileItem.findOne({ address: _address });
+  const _profile = await profileItem
+    .findOne({ address: _address })
+    .lean()
+    .exec();
   if (_profile) {
     return _profile;
   } else {
@@ -36,19 +42,22 @@ export const fetchProfile = async (_address: string) => {
 };
 
 export const fetchUser = async (_name: string) => {
-  const _profile = await profileItem.findOne({ name: _name });
+  const _profile = await profileItem.findOne({ name: _name }).lean().exec();
   if (_profile) return true;
   else return false;
 };
 
 export const allUsers = async () => {
-  const _profile = await profileItem.find({});
+  const _profile = await profileItem.find({}).lean().exec();
   return _profile;
 };
 
 export const sendVerification = async (email: string, address: string) => {
   const randomNumber = Math.floor(Math.random() * 900000) + 100000;
-  const _profile = await profileItem.findOne({ address: address });
+  const _profile = await profileItem
+    .findOne({ address: address })
+    .lean()
+    .exec();
   if (!_profile) return;
   _profile.code = randomNumber;
   _profile.save();

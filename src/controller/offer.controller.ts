@@ -385,6 +385,7 @@ export const handleCollectAcceptRequest = async (
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
+      .lean()
       .exec();
     let _isForSale = _item?.isForSale;
     if (!_item) return;
@@ -402,6 +403,7 @@ export const handleCollectAcceptRequest = async (
           isForSale: true,
         })
         .sort({ price: 1 })
+        .lean()
         .exec();
       let collecteditem = await collectionItem
         .findOne({
@@ -409,6 +411,7 @@ export const handleCollectAcceptRequest = async (
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
           "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         })
+        .lean()
         .exec();
       if (!collecteditem) return;
       collecteditem.listed = listedItem.length;
@@ -420,6 +423,7 @@ export const handleCollectAcceptRequest = async (
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         })
         .distinct("owner")
+        .lean()
         .exec();
       if (!itemAmount) return;
       collecteditem.owner = itemAmount.length;
@@ -431,6 +435,7 @@ export const handleCollectAcceptRequest = async (
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
           "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         })
+        .lean()
         .exec();
       if (!collecteditem) return;
       collecteditem.volume += parseFloat(data.events[0].data.price_per_item);
@@ -440,6 +445,7 @@ export const handleCollectAcceptRequest = async (
           "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         })
         .distinct("owner")
+        .lean()
         .exec();
       if (!itemAmount) return;
       collecteditem.owner = itemAmount.length;
@@ -474,6 +480,7 @@ export const handleCollectAcceptRequest = async (
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
+      .lean()
       .exec();
     return item;
   }
@@ -517,6 +524,7 @@ export const handleCollectCancelRequest = async (
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       })
+      .lean()
       .exec();
     return item;
   }
@@ -540,6 +548,7 @@ export const fetchCollectOffer = async (tokenIdData: I_TOKEN_ID_DATA) => {
       },
     })
     .sort({ price: -1 })
+    .lean()
     .exec();
   return item;
 };
@@ -572,6 +581,7 @@ export const receivedByAddress = async (_owner: string) => {
       owner: _owner,
     })
     .sort({ price: -1 })
+    .lean()
     .exec();
   const items = await Promise.all(
     ownedNfts.map(async (token: any, i: number) => {
@@ -583,6 +593,7 @@ export const receivedByAddress = async (_owner: string) => {
           },
         })
         .sort({ price: -1 })
+        .lean()
         .exec();
       let _item = item?.map((item) => Object.assign(item, { key: token.key }));
 
@@ -598,6 +609,7 @@ export const receivedItemByAddress = async (_owner: string) => {
       owner: _owner,
     })
     .sort({ price: -1 })
+    .lean()
     .exec();
   const items = await Promise.all(
     ownedNfts.map(async (token: any, i: number) => {
@@ -607,6 +619,7 @@ export const receivedItemByAddress = async (_owner: string) => {
           "key.token_data_id.name": token?.key?.token_data_id.name,
         })
         .sort({ price: -1 })
+        .lean()
         .exec();
       return item;
     })

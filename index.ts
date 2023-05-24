@@ -35,7 +35,7 @@ let eventType = [
   "AcceptOfferEvent",
   "SellCollectionOfferEvent",
 ];
-let _cronJob = new CronJob("*/30 * * * * *", async () => {
+let _cronJob = new CronJob("0 */2 * * * *", async () => {
   try {
     let test = await collectionItem.find({});
     test.map(async (item: any, i: number) => {

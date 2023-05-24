@@ -632,6 +632,7 @@ export const handleCollectionNft = async (tokenIdData: I_TOKEN_SLUG) => {
         "key.token_data_id.name": tokenIdData?.name,
         slug: tokenIdData?.slug,
       })
+      .lean()
       .exec();
   } else {
     item = await nftItem
@@ -639,6 +640,7 @@ export const handleCollectionNft = async (tokenIdData: I_TOKEN_SLUG) => {
         "key.property_version": tokenIdData?.property_version,
         slug: tokenIdData?.slug,
       })
+      .lean()
       .exec();
   }
 
@@ -646,7 +648,7 @@ export const handleCollectionNft = async (tokenIdData: I_TOKEN_SLUG) => {
 };
 
 export const handleNfts = async (tokenIdData: I_TOKEN_ID_DATA) => {
-  const item = await nftItem.find({}).exec();
+  const item = await nftItem.find({}).lean().exec();
   return item;
 };
 
@@ -698,6 +700,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
+      .lean()
       .exec();
     if (!item) return;
     const token = data.events[0];
@@ -713,6 +716,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         isForSale: true,
       })
       .sort({ price: 1 })
+      .lean()
       .exec();
     if (!listedItem) return;
     let collecteditem = await collectionItem
@@ -721,6 +725,7 @@ export const handleListingRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       })
+      .lean()
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
@@ -761,6 +766,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
+      .lean()
       .exec();
     if (!item) return;
     const token = data.events[0];
@@ -776,6 +782,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         isForSale: true,
       })
       .sort({ price: 1 })
+      .lean()
       .exec();
     if (!listedItem) return;
 
@@ -785,6 +792,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       })
+      .lean()
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
@@ -797,6 +805,7 @@ export const handleBuyRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
       })
       .distinct("owner")
+      .lean()
       .exec();
     if (!itemAmount) return;
     collecteditem.owner = itemAmount.length;
@@ -837,6 +846,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
         "key.token_data_id.name": tokenIdData.token_data_id.name,
       })
+      .lean()
       .exec();
     if (!item) return;
     item.price = 0;
@@ -851,6 +861,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         isForSale: true,
       })
       .sort({ price: 1 })
+      .lean()
       .exec();
     if (!listedItem) return;
 
@@ -860,6 +871,7 @@ export const handleCancelRequest = async (tokenIdData: I_TOKEN_ID_DATA) => {
         "key.token_data_id.collection": tokenIdData.token_data_id.collection,
         "key.token_data_id.creator": tokenIdData.token_data_id.creator,
       })
+      .lean()
       .exec();
     if (!collecteditem) return;
     collecteditem.listed = listedItem.length;
@@ -1016,7 +1028,9 @@ export const cronCollectionMetabySlug = async (slug: string) => {
             slug: slug,
             metadata: { $elemMatch: { trait_type: key, value: val } },
           })
-          .count();
+          .count()
+          .lean()
+          .exec();
       })
     );
   });

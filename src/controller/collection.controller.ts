@@ -11,6 +11,7 @@ export const updateItem = async (
     .findOne({
       "key.token_data_id.collection": slug,
     })
+    .lean()
     .exec();
   if (!item) return;
   item.volume += parseFloat(amount);
@@ -23,16 +24,18 @@ export const fetchItem = async (slug: string) => {
     .findOne({
       slug: slug,
     })
+    .lean()
     .exec();
   if (!item) return;
   return item;
 };
 
 export const fetchCollection = async (_period: number) => {
+  let limitTime = new Date(new Date().getTime() - 3600 * _period * 1000);
   let item = await collectionItem
     .find({
       lastSoldAt: {
-        $gte: new Date(new Date().getTime() - 3600 * _period * 1000),
+        $gte: limitTime,
       },
     })
     .sort({ volume: -1 })
@@ -40,6 +43,7 @@ export const fetchCollection = async (_period: number) => {
     .lean()
     .exec();
   if (!item) return;
+
   return item;
 };
 
@@ -48,6 +52,7 @@ export const fetchCollectionData = async (slug: string) => {
     .findOne({
       slug: slug,
     })
+    .lean()
     .exec();
   if (!item) return;
   return item;
@@ -60,6 +65,7 @@ export const fetchActivity = async (slug: string, eventType: string) => {
       buyer: { $exists: eventType == "0" ? true : false },
     })
     .sort({ timestamp: -1 })
+    .lean()
     .exec();
   return item;
 };
