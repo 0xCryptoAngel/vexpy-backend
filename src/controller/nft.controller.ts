@@ -524,19 +524,22 @@ export const collectedNft = async (
     query.slug = slug;
   }
 
-  const result = await nftItem.aggregate([
-    {
-      $lookup: {
-        from: "collectionitems", //other table name
-        localField: "slug", //name of car table field
-        foreignField: "slug", //name of cardetails table field
-        as: "collection", //alias for cardetails table
+  const result = await nftItem
+    .aggregate([
+      {
+        $lookup: {
+          from: "collectionitems", //other table name
+          localField: "slug", //name of car table field
+          foreignField: "slug", //name of cardetails table field
+          as: "collection", //alias for cardetails table
+        },
       },
-    },
-    {
-      $match: query,
-    },
-  ]);
+      {
+        $match: query,
+      },
+    ])
+    .limit(30)
+    .exec();
   return result;
 };
 

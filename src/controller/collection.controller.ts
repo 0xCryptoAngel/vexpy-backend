@@ -36,6 +36,8 @@ export const fetchCollection = async (_period: number) => {
       },
     })
     .sort({ volume: -1 })
+    .limit(30)
+    .lean()
     .exec();
   if (!item) return;
   return item;
