@@ -13,9 +13,18 @@ import { cache } from "../utils/graphql";
 async function fetchTopCollection(req: Request, res: Response) {
   try {
     let period: any = req.query?.period;
+    let page: any = req.query?.page;
+    let pageSize: any = req.query?.pageSize;
+    console.log("period", period);
+    console.log("page", page);
+    console.log("pageSize", pageSize);
     // let data = cache.get(period + "fetchTopCollection");
     // if (!data) {
-    let data = await fetchCollection(parseInt(period));
+    let data = await fetchCollection(
+      parseInt(period),
+      parseInt(page),
+      parseInt(pageSize)
+    );
     //   cache.set(period + "fetchTopCollection", data);
     // }
     return res.status(200).send(data);

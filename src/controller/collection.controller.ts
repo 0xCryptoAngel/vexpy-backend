@@ -30,7 +30,11 @@ export const fetchItem = async (slug: string) => {
   return item;
 };
 
-export const fetchCollection = async (_period: number) => {
+export const fetchCollection = async (
+  _period: number,
+  _page: number,
+  _pageSize: number
+) => {
   let limitTime = new Date(new Date().getTime() - 3600 * _period * 1000);
   let item = await collectionItem
     .find({
@@ -39,12 +43,32 @@ export const fetchCollection = async (_period: number) => {
       },
     })
     .sort({ volume: -1 })
-    .limit(30)
+    .skip(_page * _pageSize)
+    .limit(_pageSize)
+    .select({
+      _id: 0,
+      image_uri: 1,
+      name: 1,
+      floor: 1,
+      owner: 1,
+      supply: 1,
+      volume: 1,
+    })
     .lean()
     .exec();
+  let count = await collectionItem
+    .find({
+      lastSoldAt: {
+        $gte: limitTime,
+      },
+    })
+    .count()
+    .lean()
+    .exec();
+
   if (!item) return;
 
-  return item;
+  return { items: item, count: count };
 };
 
 export const fetchCollectionData = async (slug: string) => {
