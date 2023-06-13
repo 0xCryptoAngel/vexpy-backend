@@ -101,10 +101,17 @@ async function fetchCollectionData(req: Request, res: Response) {
 async function fetchCollectedNftByAddress(req: Request, res: Response) {
   try {
     let address: string = req.params.address;
+    let page: any = req.query?.page;
+    let pageSize: any = req.query?.pageSize;
     let slug = req.query.slug as string;
     // let data = cache.get(address + slug + "fetchCollectedNftByAddress");
     // if (!data) {
-    let data = await collectedNft(address, slug);
+    let data = await collectedNft(
+      address,
+      slug,
+      parseInt(page),
+      parseInt(pageSize)
+    );
     //   cache.set(address + slug + "fetchCollectedNftByAddress");
     // }
     return res.status(200).send(data);

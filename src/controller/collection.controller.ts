@@ -2,6 +2,7 @@ import { I_TOKEN_ID_DATA } from "../types/interfaces";
 import { collectionItem } from "../db/schema/collectionItem";
 import { nftItem } from "../db/schema/nftItem";
 import { activity } from "../db/schema/activity";
+
 export const updateItem = async (
   slug: string,
   amount: string,
