@@ -125,9 +125,24 @@ async function fetchCollection(req: Request, res: Response) {
     let slug: string = req.params.slug;
     let filter: string = req.query?.filter as string;
     let isForSale: any = req.query?.isForSale! || false;
+    console.log("slug", slug, filter, isForSale);
+
+    let _page: any = req.query?.page;
+    let _pageSize: any = req.query?.pageSize;
+
+    console.log("_page", _page, "_pageSize", _pageSize);
+
     // let data = cache.get(slug + filter + isForSale + "fetchCollection");
     // if (!data) {
-    let data = await collection(decodeURIComponent(slug), isForSale, filter);
+
+    let data = await collection(
+      decodeURIComponent(slug),
+      isForSale,
+      filter,
+      _page,
+      _pageSize
+    );
+
     //   cache.set(slug + filter + isForSale + "fetchCollection");
     // }
     return res.status(200).send(data);

@@ -622,7 +622,9 @@ export const collectedNft = async (
 export const collection = async (
   slug: string,
   _isForSale: any,
-  _filter: string
+  _filter: string,
+  _page: number,
+  _pageSize: number
 ) => {
   let query: any = {
     slug: slug,
@@ -633,8 +635,44 @@ export const collection = async (
   if (_filter != undefined && JSON.parse(_filter).length > 0) {
     query.metadata = { $elemMatch: { $or: JSON.parse(_filter) } };
   }
-  let result = await nftItem.find(query).sort({ isForSale: -1, price: 1 });
-  return result;
+  let result = await nftItem
+    .find(query)
+    .sort({ isForSale: -1, price: 1 })
+    .skip(_page * _pageSize)
+    .limit(_pageSize)
+    .lean()
+    .exec();
+
+  let count = await nftItem.find(query).count().lean().exec();
+  // .aggregate([
+  //   {
+  //     $lookup: {
+  //       from: "collectionitems", //other table name
+  //       localField: "slug", //name of car table field
+  //       foreignField: "slug", //name of cardetails table field
+  //       as: "collection", //alias for cardetails table
+  //     },
+  //   },
+  //   {
+  //     $match: query,
+  //   },
+  //   {
+  //     $project: {
+  //       image_uri: 1,
+  //       "key.token_data_id.name": 1,
+  //       collection_name: 1,
+  //       price: 1,
+  //       slug: 1,
+  //       "collection.topoffer": 1,
+  //       "collection.floor": 1,
+  //     },
+  //   },
+  // ])
+  // .skip(_page * _pageSize)
+  // .limit(_pageSize)
+  // .exec();
+
+  return { count: count, items: result };
 };
 
 export const updateListToken = async (token: any) => {
